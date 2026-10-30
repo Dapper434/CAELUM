@@ -1,0 +1,9 @@
+flask>=3.0.0
+flask-cors>=5.0.0
+supabase>=2.11.0
+pydantic>=2.7.0
+pandas>=2.2.0
+statsmodels>=0.14.2
+openai>=1.40.0
+python-dotenv>=1.0.1
+requests>=2.32.0
