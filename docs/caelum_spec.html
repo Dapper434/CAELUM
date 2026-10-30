@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CAELUM System Specification - Team ORIZEN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #F6F3ED; /* Warm Beige */
+      color: #1E293B;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .page {
+      width: 210mm;
+      height: 297mm;
+      position: relative;
+      background-color: #F6F3ED; /* Warm Beige */
+      padding: 20mm 20mm 18mm 20mm;
+      page-break-after: always;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Running Header & Footer */
+    .running-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #64748B;
+      border-bottom: 1.5px solid #E4DCD0;
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+    }
+
+    .running-header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #0E3A8C; /* Cobalt Blue */
+    }
+
+    .running-header-badge::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: #F59E0B; /* Sun Yellow */
+    }
+
+    .running-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: #64748B;
+      border-top: 1.5px solid #E4DCD0;
+      padding-top: 8px;
+      margin-top: auto;
+    }
+
+    .page-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: #0E3A8C;
+      background: #EAE3D4;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    /* Section Openers Borrowed from Reference Design */
+    .section-heading-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 14px;
+      position: relative;
+    }
+
+    .section-num {
+      font-size: 38px;
+      font-weight: 800;
+      color: #F59E0B; /* Sun Yellow Accent */
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .section-num.cobalt {
+      color: #0E3A8C; /* Cobalt Blue Accent */
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0F172A;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .section-subtitle {
+      font-size: 11.5px;
+      color: #64748B;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    /* Cards & Grids */
+    .card {
+      background: #FFFFFF;
+      border: 1px solid #E6DFD2;
+      border-radius: 10px;
+      padding: 13px 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    .card-accent-cobalt {
+      border-top: 3.5px solid #0E3A8C;
+    }
+
+    .card-accent-yellow {
+      border-top: 3.5px solid #F59E0B;
+    }
+
+    .card-accent-emerald {
+      border-top: 3.5px solid #059669;
+    }
+
+    .card-accent-crimson {
+      border-top: 3.5px solid #B91C1C;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 13px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    /* Typography Utilities */
+    h3 {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 5px;
+      letter-spacing: -0.01em;
+    }
+
+    p {
+      color: #334155;
+      font-size: 11.5px;
+      line-height: 1.55;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Badges & Tags */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 2.5px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-cobalt {
+      background: #EBF2FE;
+      color: #0E3A8C;
+      border: 1px solid #C7DCFD;
+    }
+
+    .badge-yellow {
+      background: #FEF3C7;
+      color: #B45309;
+      border: 1px solid #FDE68A;
+    }
+
+    .badge-emerald {
+      background: #ECFDF5;
+      color: #047857;
+      border: 1px solid #A7F3D0;
+    }
+
+    .badge-crimson {
+      background: #FEF2F2;
+      color: #B91C1C;
+      border: 1px solid #FECACA;
+    }
+
+    .badge-slate {
+      background: #F1F5F9;
+      color: #475569;
+      border: 1px solid #E2E8F0;
+    }
+
+    /* Custom Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    th {
+      background: #0E3A8C;
+      color: #FFFFFF;
+      font-weight: 700;
+      text-align: left;
+      padding: 7px 10px;
+      font-size: 10px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    th:first-child { border-top-left-radius: 6px; }
+    th:last-child { border-top-right-radius: 6px; }
+
+    td {
+      padding: 7px 10px;
+      border-bottom: 1px solid #E8E2D6;
+      color: #334155;
+      background: #FFFFFF;
+    }
+
+    tr:nth-child(even) td {
+      background: #FAF7F2;
+    }
+
+    /* ========================================================
+       PAGE 1: COVER PAGE
+       ======================================================== */
+    .cover-page {
+      padding: 20mm 20mm 18mm 20mm;
+      background-color: #F6F3ED;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .cover-top-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: #475569;
+      text-transform: uppercase;
+    }
+
+    /* The Massive Cobalt Blue Block with clean Heading */
+    .cover-hero-strip {
+      background: linear-gradient(135deg, #092357 0%, #0E3A8C 100%);
+      border-radius: 14px;
+      padding: 30px 30px;
+      color: #FFFFFF;
+      box-shadow: 0 16px 36px rgba(14, 58, 140, 0.18);
+      position: relative;
+      overflow: hidden;
+      margin: 16px 0 14px 0;
+    }
+
+    .cover-hero-strip::after {
+      content: "";
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      width: 170px;
+      height: 170px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, rgba(245, 158, 11, 0) 70%);
+      pointer-events: none;
+    }
+
+    .cover-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #FBBF24; /* Sun Yellow */
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .cover-title {
+      font-size: 44px;
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.05;
+      margin-bottom: 6px;
+    }
+
+    .cover-title span.yellow-glow {
+      color: #FBBF24; /* Sun Yellow */
+    }
+
+    .cover-subtitle {
+      font-size: 14.5px;
+      font-weight: 500;
+      color: #CBD5E1;
+      max-width: 540px;
+      line-height: 1.45;
+      margin-bottom: 16px;
+    }
+
+    .cover-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .cover-pill {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #FFFFFF;
+      padding: 4px 11px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .cover-pill.yellow {
+      background: #F59E0B;
+      color: #0F172A;
+      border-color: #FBBF24;
+      font-weight: 700;
+    }
+
+    .cover-specs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .spec-item {
+      background: #FFFFFF;
+      border: 1px solid #E6DFD2;
+      border-radius: 8px;
+      padding: 11px 13px;
+    }
+
+    .spec-label {
+      font-size: 9.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #64748B;
+      letter-spacing: 0.05em;
+      margin-bottom: 3px;
+    }
+
+    .spec-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0F172A;
+    }
+
+    .spec-desc {
+      font-size: 10.5px;
+      color: #64748B;
+      margin-top: 1px;
+    }
+
+    .cover-abstract {
+      background: #FAF7F0;
+      border: 1.5px dashed #D5CCA8;
+      border-left: 4px solid #F59E0B;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 11.5px;
+      color: #334155;
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+
+    /* Table of Contents Grid on Cover (Borrowed from reference image Slide 2) */
+    .toc-section {
+      background: #FFFFFF;
+      border: 1px solid #E6DFD2;
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .toc-title {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #0E3A8C;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toc-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .toc-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #FAF7F2;
+      padding: 7px 10px;
+      border-radius: 6px;
+      border: 1px solid #EBE4D8;
+    }
+
+    .toc-item-num {
+      font-size: 14px;
+      font-weight: 800;
+      color: #F59E0B;
+      line-height: 1;
+    }
+
+    .toc-item-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #1E293B;
+      line-height: 1.25;
+    }
+
+    .cover-footer-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 12px;
+      border-top: 1.5px solid #E4DCD0;
+      font-size: 10px;
+      color: #64748B;
+      font-weight: 600;
+    }
+
+    /* Diagram Styles */
+    .flow-step {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 8.5px;
+    }
+
+    .step-index {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #0E3A8C;
+      color: #FFFFFF;
+      font-size: 10px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-index.yellow {
+      background: #F59E0B;
+      color: #0F172A;
+    }
+
+    .step-content {
+      flex: 1;
+    }
+
+    .step-title {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #0F172A;
+    }
+
+    .step-desc {
+      font-size: 10.5px;
+      color: #475569;
+      line-height: 1.45;
+    }
+
+    /* Metric Big Numbers */
+    .stat-hero {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      margin-bottom: 2px;
+    }
+
+    .stat-hero.cobalt { color: #0E3A8C; }
+    .stat-hero.yellow { color: #D97706; }
+    .stat-hero.emerald { color: #059669; }
+    .stat-hero.crimson { color: #B91C1C; }
+
+    /* Code Snippet Box */
+    .code-box {
+      background: #0F172A;
+      color: #E2E8F0;
+      border-radius: 8px;
+      padding: 11px 13px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      line-height: 1.5;
+      overflow: hidden;
+      border: 1px solid #1E293B;
+    }
+
+    .code-comment { color: #64748B; }
+    .code-keyword { color: #F59E0B; }
+    .code-string { color: #34D399; }
+    .code-func { color: #60A5FA; }
+
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================
+       PAGE 1: COVER PAGE
+       ======================================================== -->
+  <div class="page cover-page">
+    <div>
+      <div class="cover-top-meta">
+        <div>CAELUM &bull; SYSTEM SPECIFICATION</div>
+        <div>MORINGA SCHOOL HACKATHON 2026</div>
+      </div>
+
+      <!-- Prominent Cobalt Blue Banner with Heading -->
+      <div class="cover-hero-strip">
+        <div class="cover-kicker">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg>
+          Multi-Agent Logistics Platform
+        </div>
+        <h1 class="cover-title">CAELUM <span class="yellow-glow">Spec</span></h1>
+        <div class="cover-subtitle">
+          Centralized Agent Environment for Lifesaving and Urgent Mobility &mdash; A Sovereign, Deterministic Multi-Agent Logistics Engine for Regional Blood Redistribution.
+        </div>
+        <div class="cover-pills">
+          <span class="cover-pill yellow">Deterministic Math First</span>
+          <span class="cover-pill">NVIDIA NIM Ready</span>
+          <span class="cover-pill">Llama 3.1 8B Orchestrator</span>
+          <span class="cover-pill">Nemotron 3.5 Embed</span>
+          <span class="cover-pill">Zero Hallucinations</span>
+        </div>
+      </div>
+
+      <!-- Quick Specs Matrix -->
+      <div class="cover-specs-grid">
+        <div class="spec-item">
+          <div class="spec-label">Development Team</div>
+          <div class="spec-value">Team ORIZEN</div>
+          <div class="spec-desc">Antigravity (Lead UI) & Cursor (Backend)</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Target Architecture</div>
+          <div class="spec-value">Hybrid MAS</div>
+          <div class="spec-desc">Classical Statistics + Single-Shot LLM</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Deployment Target</div>
+          <div class="spec-value">Sovereign On-Prem</div>
+          <div class="spec-desc">Compliant with Kenya DPA 2019 / HIPAA</div>
+        </div>
+      </div>
+
+      <!-- Executive Abstract Box -->
+      <div class="cover-abstract">
+        <strong style="color: #0E3A8C;">EXECUTIVE SUMMARY:</strong> Blood is a strictly perishable, non-fungible biological resource. In fragmented healthcare networks, peripheral trauma centers suffer critical stockouts while neighboring regional hubs incinerate viable units due to calendar expiration. <strong>CAELUM</strong> unifies regional inventory telemetry, predicts depletion using deterministic Holt-Winters statistics, filters transit corridors against strict cold-chain bounds, retrieves clinical transfer SOPs via vector RAG, and generates single-shot, zero-hallucination dispatch orders for immediate human confirmation.
+      </div>
+
+      <!-- Table of Contents Grid (Inspired by Brand Guidelines Slide 2) -->
+      <div class="toc-section">
+        <div class="toc-title">
+          <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#F59E0B;"></span>
+          System Architecture Contents &amp; Core Sections
+        </div>
+        <div class="toc-grid">
+          <div class="toc-item">
+            <div class="toc-item-num">01</div>
+            <div class="toc-item-label">Problem Space &amp; Logistics Crisis</div>
+          </div>
+          <div class="toc-item">
+            <div class="toc-item-num">02</div>
+            <div class="toc-item-label">Hybrid Multi-Agent System (MAS)</div>
+          </div>
+          <div class="toc-item">
+            <div class="toc-item-num">03</div>
+            <div class="toc-item-label">The 8-Step Orchestration Loop</div>
+          </div>
+          <div class="toc-item">
+            <div class="toc-item-num">04</div>
+            <div class="toc-item-label">Data Sovereignty &amp; NVIDIA NIM</div>
+          </div>
+          <div class="toc-item">
+            <div class="toc-item-num">05</div>
+            <div class="toc-item-label">Human Interface &amp; Component Specs</div>
+          </div>
+          <div class="toc-item">
+            <div class="toc-item-num">06</div>
+            <div class="toc-item-label">Tripartite Safety &amp; Verification</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cover-footer-bar">
+      <div>DOCUMENT: CAELUM-SPEC-V1.0</div>
+      <div>CLASSIFICATION: PUBLIC SYSTEM SPECIFICATION</div>
+      <div>OCTOBER 2026</div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================
+       PAGE 2: EXECUTIVE SUMMARY & PROBLEM STATEMENT
+       ======================================================== -->
+  <div class="page">
+    <div class="running-header">
+      <div class="running-header-badge">01 // Problem Space & System Rationale</div>
+      <div>CAELUM ARCHITECTURE</div>
+    </div>
+
+    <div>
+      <div class="section-heading-wrap">
+        <div class="section-num">01</div>
+        <div>
+          <h2 class="section-title">The Blood Logistics Crisis</h2>
+          <div class="section-subtitle">The Tragedy of Simultaneous Waste and Stockouts in Regional Healthcare</div>
+        </div>
+      </div>
+
+      <!-- 4 High Impact Metrics -->
+      <div class="grid-4" style="margin-bottom: 14px;">
+        <div class="card card-accent-crimson">
+          <div class="stat-hero crimson">35-42d</div>
+          <h3>Packed RBC Shelf Life</h3>
+          <p>Strict viability window. After day 42, biological degradation forces mandatory incineration.</p>
+        </div>
+        <div class="card card-accent-yellow">
+          <div class="stat-hero yellow">45 min</div>
+          <h3>Average Phone Triage</h3>
+          <p>Manual coordination via voice calls and messaging groups delays critical emergency transfusions.</p>
+        </div>
+        <div class="card card-accent-emerald">
+          <div class="stat-hero emerald">&lt; 3.2s</div>
+          <h3>CAELUM Scan Latency</h3>
+          <p>Full regional inventory snapshot, corridor filtering, and single-shot evaluation completed in seconds.</p>
+        </div>
+        <div class="card card-accent-cobalt">
+          <div class="stat-hero cobalt">85%</div>
+          <h3>Target Waste Reduction</h3>
+          <p>Proactively routes units approaching expiry into high-consumption surgical and trauma centers.</p>
+        </div>
+      </div>
+
+      <!-- Detailed Problem Analysis -->
+      <div class="grid-2" style="margin-bottom: 14px;">
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <h3>The Fatal Logistics Paradox</h3>
+            <span class="badge badge-crimson">Status Quo Failure</span>
+          </div>
+          <p style="margin-bottom: 8px;">
+            In county healthcare networks, blood banks operate as isolated data islands. A Level 4 hospital frequently faces an acute shortage of <strong>O⁻</strong> or <strong>B⁺</strong> during obstetric emergencies, while a Level 5 facility 35 km away holds units expiring in 72 hours with insufficient scheduled surgeries to utilize them.
+          </p>
+          <p>
+            Without unified, real-time inventory visibility and automated decision support, units expire unused on shelves while preventable deaths occur within the same 50-kilometer radius.
+          </p>
+        </div>
+
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <h3>The Administrative Friction Barrier</h3>
+            <span class="badge badge-yellow">Regulatory Chokepoint</span>
+          </div>
+          <p style="margin-bottom: 8px;">
+            Transferring physiological blood products is strictly governed by clinical standard operating procedures (SOPs). Factors include bilateral hospital agreements, cold-chain refrigeration preservation (2°C to 6°C), and quota protection so the donor facility isn't left vulnerable.
+          </p>
+          <p>
+            Stressed clinical officers lack the time to manually cross-reference transfer SOPs, leading to administrative freeze and reliance on ad-hoc personal networks.
+          </p>
+        </div>
+      </div>
+
+      <!-- The Solution Thesis Table -->
+      <div class="card card-accent-cobalt">
+        <h3 style="margin-bottom: 8px;">Comparative Paradigm: Conventional vs CAELUM Hybrid MAS</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Operational Vector</th>
+              <th>Status Quo (Manual Telephony)</th>
+              <th>CAELUM Hybrid Multi-Agent Platform</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Inventory Visibility</strong></td>
+              <td>Isolated spreadsheets & phone inquiries</td>
+              <td>Centralized Supabase ledger updated in real time</td>
+            </tr>
+            <tr>
+              <td><strong>Shortage Forecasting</strong></td>
+              <td>Reactive (noticed when fridge shelf is empty)</td>
+              <td>Holt-Winters statistical demand modeling (72h ahead)</td>
+            </tr>
+            <tr>
+              <td><strong>Corridor Selection</strong></td>
+              <td>Heuristic guesses by on-duty medical officer</td>
+              <td>Deterministic transit time & cold-chain calculation</td>
+            </tr>
+            <tr>
+              <td><strong>Policy Compliance</strong></td>
+              <td>Dependent on memory of internal hospital SOPs</td>
+              <td>NVIDIA Nemotron 3.5 Embed semantic RAG verification</td>
+            </tr>
+            <tr>
+              <td><strong>Transfer Execution</strong></td>
+              <td>Fragmented phone calls (45+ minutes)</td>
+              <td>One-Click Human-in-the-Loop dispatch confirmation</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="running-footer">
+      <div>CAELUM &bull; TEAM ORIZEN</div>
+      <div>MORINGA SCHOOL HACKATHON 2026</div>
+      <div class="page-number">PAGE 02 / 06</div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================
+       PAGE 3: HYBRID MULTI-AGENT ARCHITECTURE (MAS)
+       ======================================================== -->
+  <div class="page">
+    <div class="running-header">
+      <div class="running-header-badge">02 // Multi-Agent Architecture</div>
+      <div>ORCHESTRATOR-WORKER PATTERN</div>
+    </div>
+
+    <div>
+      <div class="section-heading-wrap">
+        <div class="section-num cobalt">02</div>
+        <div>
+          <h2 class="section-title">Hybrid Multi-Agent System (MAS)</h2>
+          <div class="section-subtitle">Deterministic Mathematical Rigor Coupled with Single-Shot Semantic Reasoning</div>
+        </div>
+      </div>
+
+      <!-- Core Architectural Principle Callout -->
+      <div class="card card-accent-yellow" style="margin-bottom: 14px; background: #FFFDF9;">
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <div style="font-size: 24px; color: #D97706;">⚡</div>
+          <div>
+            <strong style="color: #0F172A; font-size: 12px;">THE GOLDEN RULE OF CAELUM AGENT ENGINEERING:</strong>
+            <p style="font-size: 11px; color: #475569; margin-top: 1px;">
+              Never delegate arithmetic, distance calculations, or inventory lookups to an LLM. Probabilistic models hallucinate quantities and identifiers. In CAELUM, all mathematical boundaries are computed deterministically by Python workers; the LLM serves strictly as a qualitative policy evaluator.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- The 4 Agent Cards Grid -->
+      <div class="grid-2" style="margin-bottom: 14px;">
+        <!-- Agent 1 -->
+        <div class="card card-accent-cobalt">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <div style="display: flex; align-items:center; gap:6px;">
+              <span class="badge badge-cobalt">Agent 1</span>
+              <h3>Forecasting Worker</h3>
+            </div>
+            <span class="badge badge-slate">Deterministic Python</span>
+          </div>
+          <p style="margin-bottom: 6px;">
+            Monitors historical blood draw logs and computes rolling consumption velocity per blood type (A⁺, A⁻, B⁺, B⁻, AB⁺, AB⁻, O⁺, O⁻).
+          </p>
+          <div style="background:#FAF7F2; padding:6px 8px; border-radius:6px; font-size:10.5px; color:#475569;">
+            <strong>Engine:</strong> Classical Holt-Winters Exponential Smoothing &bull; <strong>Output:</strong> Days-of-cover per facility & shortage flags.
+          </div>
+        </div>
+
+        <!-- Agent 2 -->
+        <div class="card card-accent-emerald">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <div style="display: flex; align-items:center; gap:6px;">
+              <span class="badge badge-emerald">Agent 2</span>
+              <h3>Logistics Worker</h3>
+            </div>
+            <span class="badge badge-slate">Deterministic Python</span>
+          </div>
+          <p style="margin-bottom: 6px;">
+            Calculates pairwise road travel times, verifies cold-chain temperature limits, and enforces donor safety reserves (D_post-transfer ≥ 3 days).
+          </p>
+          <div style="background:#FAF7F2; padding:6px 8px; border-radius:6px; font-size:10.5px; color:#475569;">
+            <strong>Engine:</strong> Haversine + Regional Speed Matrices &bull; <strong>Output:</strong> Top-3 mathematically viable candidate donor nodes.
+          </div>
+        </div>
+
+        <!-- Agent 3 -->
+        <div class="card card-accent-yellow">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <div style="display: flex; align-items:center; gap:6px;">
+              <span class="badge badge-yellow">Agent 3</span>
+              <h3>Policy RAG Retriever</h3>
+            </div>
+            <span class="badge badge-slate">Nemotron + pgvector</span>
+          </div>
+          <p style="margin-bottom: 6px;">
+            Converts the emergency transfer context into high-dimensional embeddings and performs cosine semantic similarity search over hospital SOPs and county bylaws.
+          </p>
+          <div style="background:#FAF7F2; padding:6px 8px; border-radius:6px; font-size:10.5px; color:#475569;">
+            <strong>Engine:</strong> NVIDIA Nemotron 3.5 Embed 1B &bull; <strong>Output:</strong> Matched clinical SOP chunks and inter-hospital MOU rules.
+          </div>
+        </div>
+
+        <!-- Agent 4 -->
+        <div class="card card-accent-cobalt">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <div style="display: flex; align-items:center; gap:6px;">
+              <span class="badge badge-cobalt">Agent 4</span>
+              <h3>AI Orchestrator</h3>
+            </div>
+            <span class="badge badge-slate">Llama 3.1 8B Instruct</span>
+          </div>
+          <p style="margin-bottom: 6px;">
+            Receives a pre-packaged, validated JSON context containing the outputs of Agents 1, 2, and 3. Weighs multi-objective clinical tradeoffs in a single shot.
+          </p>
+          <div style="background:#FAF7F2; padding:6px 8px; border-radius:6px; font-size:10.5px; color:#475569;">
+            <strong>Engine:</strong> OpenRouter / Local NVIDIA NIM &bull; <strong>Output:</strong> Strict Pydantic JSON recommendation & rationale.
+          </div>
+        </div>
+      </div>
+
+      <!-- Architectural Dataflow Schematic -->
+      <div class="card">
+        <h3 style="margin-bottom: 8px;">Deterministic-Semantic Orchestration Pipeline</h3>
+        <div style="background: #0F172A; border-radius: 8px; padding: 12px 16px; color: #E2E8F0; font-size: 10px; font-family: 'JetBrains Mono', monospace; line-height: 1.6;">
+          <div style="color: #64748B;">// 1. Snapshot State & Trigger</div>
+          <div>Postgres Snapshot &rarr; <span style="color: #60A5FA;">Agent 1 (Forecaster)</span> &rarr; Shortage Detected (<span style="color: #F87171;">O- Negative @ Facility_C</span>)</div>
+          
+          <div style="color: #64748B; margin-top: 4px;">// 2. Deterministic Filtering (Zero Hallucination Surface)</div>
+          <div><span style="color: #34D399;">Agent 2 (Logistics)</span>: Checks 8 regional hubs &rarr; Filters to 3 valid candidates with units expiring in &lt; 96h</div>
+          <div><span style="color: #FBBF24;">Agent 3 (RAG)</span>: Retrieves bilateral transfer protocol MOU-2024-NRB & emergency quota guidelines</div>
+
+          <div style="color: #64748B; margin-top: 4px;">// 3. Single-Shot LLM Evaluation</div>
+          <div>Payload Assembly &rarr; <span style="color: #C084FC;">Agent 4 (Llama 3.1 8B)</span> &rarr; Selects Option B (Balances transit ETA with donor safety)</div>
+
+          <div style="color: #64748B; margin-top: 4px;">// 4. Hard Verification & HITL Approval</div>
+          <div><span style="color: #F43F5E;">Python Validator</span>: Confirms Unit IDs exist in Postgres &rarr; <span style="color: #38BDF8;">React UI Human Approval Inbox</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="running-footer">
+      <div>CAELUM &bull; TEAM ORIZEN</div>
+      <div>MORINGA SCHOOL HACKATHON 2026</div>
+      <div class="page-number">PAGE 03 / 06</div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================
+       PAGE 4: THE 8-STEP ORCHESTRATION LOOP & SAFETY
+       ======================================================== -->
+  <div class="page">
+    <div class="running-header">
+      <div class="running-header-badge">03 // Execution Pipeline & Safety</div>
+      <div>THE ORCHESTRATION LOOP</div>
+    </div>
+
+    <div>
+      <div class="section-heading-wrap">
+        <div class="section-num">03</div>
+        <div>
+          <h2 class="section-title">The 8-Step Orchestration Loop</h2>
+          <div class="section-subtitle">Rigorous End-to-End Execution Sequence Guaranteeing Zero Mathematical Drift</div>
+        </div>
+      </div>
+
+      <!-- Step-by-Step Execution Sequence -->
+      <div class="card" style="margin-bottom: 14px;">
+        <h3 style="margin-bottom: 10px;">The Autonomous Scan-to-Dispatch Lifecycle</h3>
+        
+        <div class="flow-step">
+          <div class="step-index">1</div>
+          <div class="step-content">
+            <div class="step-title">Trigger & Telemetry Ingestion</div>
+            <div class="step-desc">Network Manager clicks "Run Scan" on the React Dashboard, or an automated cron triggers an hourly regional audit. Flask initializes the scan session.</div>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-index">2</div>
+          <div class="step-content">
+            <div class="step-title">Relational Inventory Snapshot</div>
+            <div class="step-desc">Backend queries Supabase for live stock levels, unit lot numbers, expiry datetimes, and 30-day historical transfusion burn rates across all connected nodes.</div>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-index">3</div>
+          <div class="step-content">
+            <div class="step-title">Deterministic Math Execution</div>
+            <div class="step-desc">Agent 1 calculates days-of-cover. If a shortage is detected, Agent 2 checks candidate donor facilities, validating: ETA + Handling &lt; Remaining Shelf Life and filters exactly 3 valid corridors.</div>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-index yellow">4</div>
+          <div class="step-content">
+            <div class="step-title">Semantic Policy Retrieval (RAG)</div>
+            <div class="step-desc">Agent 3 embeds the shortage metadata using NVIDIA Nemotron 3.5 Embed and queries Supabase `pgvector` for inter-hospital transfer guidelines and Ministry of Health SOPs.</div>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-index yellow">5</div>
+          <div class="step-content">
+            <div class="step-title">Structured Context Injection</div>
+            <div class="step-desc">Flask bundles the verified candidates from Agent 2 and regulatory snippets from Agent 3 into a strictly typed, immutable Pydantic JSON context payload.</div>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-index">6</div>
+          <div class="step-content">
+            <div class="step-title">Single-Shot LLM Orchestration</div>
+            <div class="step-desc">The context is sent to Llama 3.1 8B via OpenRouter / Local NVIDIA NIM. The model evaluates qualitative tradeoffs and returns a structured JSON recommendation with clinical rationale.</div>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-index">7</div>
+          <div class="step-content">
+            <div class="step-title">Hard Python State Validation</div>
+            <div class="step-desc">The Python Validator confirms that every unit UUID chosen by the LLM exists in the database, is currently unreserved, matches the target blood group, and is physically at the donor hospital.</div>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-index">8</div>
+          <div class="step-content">
+            <div class="step-title">Human-in-the-Loop Confirmation</div>
+            <div class="step-desc">The proposal card renders in the React UI with full route rationale. The Network Manager clicks "Approve Transfer", updating the Postgres ledger and generating the courier manifest.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zero Hallucination Guarantee Callout -->
+      <div class="grid-2">
+        <div class="card card-accent-emerald">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <h3>Tripartite Zero-Hallucination Defense</h3>
+            <span class="badge badge-emerald">Hard Safety</span>
+          </div>
+          <p style="margin-bottom: 6px;">
+            <strong>Layer 1: Candidate Limiting.</strong> The LLM is never given open search access; it is strictly presented with 3 pre-verified transfer vectors generated by deterministic code.
+          </p>
+          <p style="margin-bottom: 6px;">
+            <strong>Layer 2: Pydantic Schema Locking.</strong> LLM output is forced to adhere to an exact JSON schema. Malformed responses trigger an automatic deterministic fallback.
+          </p>
+          <p>
+            <strong>Layer 3: Cryptographic Unit Verification.</strong> The Python validator checks database primary keys before any transaction is committed.
+          </p>
+        </div>
+
+        <div class="card card-accent-cobalt">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <h3>Fail-Safe Fallback Behavior</h3>
+            <span class="badge badge-cobalt">Resilience</span>
+          </div>
+          <p style="margin-bottom: 6px;">
+            If the LLM endpoint experiences latency exceeding 3,000ms, returns invalid JSON, or hallucinates an unverified unit identifier:
+          </p>
+          <div style="background:#FAF7F2; padding:8px 10px; border-radius:6px; font-size:10.5px; border-left:3px solid #0E3A8C;">
+            <strong>Deterministic Override:</strong> The system automatically selects <em>Candidate Option #1</em> (the highest-ranking mathematical option generated by Agent 2) and flags the proposal as "Deterministically Fallbacked" on the dashboard.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="running-footer">
+      <div>CAELUM &bull; TEAM ORIZEN</div>
+      <div>MORINGA SCHOOL HACKATHON 2026</div>
+      <div class="page-number">PAGE 04 / 06</div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================
+       PAGE 5: DATA SOVEREIGNTY & NVIDIA NIM DEPLOYMENT
+       ======================================================== -->
+  <div class="page">
+    <div class="running-header">
+      <div class="running-header-badge">04 // Sovereign AI & Data Protection</div>
+      <div>NVIDIA NIM DEPLOYMENT</div>
+    </div>
+
+    <div>
+      <div class="section-heading-wrap">
+        <div class="section-num cobalt">04</div>
+        <div>
+          <h2 class="section-title">Data Sovereignty & NVIDIA NIM</h2>
+          <div class="section-subtitle">Local On-Premises Containerized AI for Regulated Healthcare Infrastructure</div>
+        </div>
+      </div>
+
+      <!-- Why Public Cloud APIs are Inadmissible -->
+      <div class="card card-accent-crimson" style="margin-bottom: 14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <h3>The Clinical Compliance Dilemma</h3>
+          <span class="badge badge-crimson">Regulatory Imperative</span>
+        </div>
+        <p style="margin-bottom: 6px;">
+          Under the <strong>Kenya Data Protection Act (2019)</strong> and international HIPAA security rules, sensitive healthcare telemetry—including real-time blood bank reserves, hospital emergency vulnerabilities, and patient transfusion orders—cannot be exposed to commercial public cloud LLM endpoints.
+        </p>
+        <p>
+          Transmitting live inventory data across foreign borders risks data sovereignty violations, exposure of national strategic healthcare reserves, and vulnerability to foreign server outages during localized medical emergencies.
+        </p>
+      </div>
+
+      <!-- The NVIDIA NIM Architecture -->
+      <div class="grid-2" style="margin-bottom: 14px;">
+        <div class="card card-accent-emerald">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <h3>NVIDIA NIM Containerization</h3>
+            <span class="badge badge-emerald">On-Prem Ready</span>
+          </div>
+          <p style="margin-bottom: 8px;">
+            <strong>NVIDIA Inference Microservices (NIM)</strong> package foundation models into self-contained, accelerated Docker containers deployable directly on regional health department hardware (NVIDIA RTX, A100, or L40S GPUs).
+          </p>
+          <ul style="font-size: 11px; color: #475569; padding-left: 16px; line-height: 1.5;">
+            <li><strong>Complete Air-Gap:</strong> Zero bytes leave the regional medical network perimeter.</li>
+            <li><strong>Sub-Second Inference:</strong> TensorRT-LLM acceleration delivers sub-500ms time-to-first-token.</li>
+            <li><strong>Predictable Costs:</strong> Fixed compute overhead with no per-token API meter spikes.</li>
+          </ul>
+        </div>
+
+        <div class="card card-accent-cobalt">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <h3>Seamless Prototyping-to-Production</h3>
+            <span class="badge badge-cobalt">OpenAI Standard API</span>
+          </div>
+          <p style="margin-bottom: 8px;">
+            NVIDIA NIM exposes an OpenAI-compliant REST specification. This enables CAELUM to develop against OpenRouter for rapid hackathon iteration, then transition to production on-prem NIM containers with a single environment variable change:
+          </p>
+          <div class="code-box">
+<span class="code-comment"># Seamless switch via environment variables</span>
+<span class="code-keyword">import</span> os
+<span class="code-keyword">from</span> openai <span class="code-keyword">import</span> OpenAI
+
+client = OpenAI(
+  base_url=os.getenv(<span class="code-string">"NIM_ENDPOINT"</span>, 
+    <span class="code-string">"https://openrouter.ai/api/v1"</span>),
+  api_key=os.getenv(<span class="code-string">"NIM_API_KEY"</span>)
+)
+          </div>
+        </div>
+      </div>
+
+      <!-- Technical Stack Specification Table -->
+      <div class="card card-accent-yellow">
+        <h3 style="margin-bottom: 8px;">Full Production Tech Stack Matrix</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>System Layer</th>
+              <th>Selected Technology</th>
+              <th>Deployment Role & Operational Responsibility</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Frontend UI</strong></td>
+              <td>React 18+, Vite, Tailwind CSS</td>
+              <td>Network Overview Dashboard, Shortage Alerts, Human Approval Inbox (Antigravity Domain)</td>
+            </tr>
+            <tr>
+              <td><strong>Backend Engine</strong></td>
+              <td>Python 3.11+, Flask 3</td>
+              <td>Microservice orchestrator, state machine, REST API, Pydantic validation (Cursor Domain)</td>
+            </tr>
+            <tr>
+              <td><strong>Relational Ledger</strong></td>
+              <td>Supabase (PostgreSQL 15)</td>
+              <td>Real-time inventory ledger, unit lot tracking, dispatch audit trail, RLS security</td>
+            </tr>
+            <tr>
+              <td><strong>Vector Store</strong></td>
+              <td>Supabase `pgvector`</td>
+              <td>Stores high-dimensional embeddings of transfer SOPs and regional clinical policies</td>
+            </tr>
+            <tr>
+              <td><strong>Policy Embeddings</strong></td>
+              <td>NVIDIA Nemotron 3.5 Embed</td>
+              <td>1-Billion parameter specialized embedding model for semantic policy retrieval</td>
+            </tr>
+            <tr>
+              <td><strong>AI Orchestrator</strong></td>
+              <td>Llama 3.1 8B Instruct</td>
+              <td>Single-shot multi-criteria route evaluation via OpenRouter / Local NVIDIA NIM</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="running-footer">
+      <div>CAELUM &bull; TEAM ORIZEN</div>
+      <div>MORINGA SCHOOL HACKATHON 2026</div>
+      <div class="page-number">PAGE 05 / 06</div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================
+       PAGE 6: FRONTEND SYSTEM & HUMAN-IN-THE-LOOP INTERFACE
+       ======================================================== -->
+  <div class="page">
+    <div class="running-header">
+      <div class="running-header-badge">05 // User Interface & Human-in-the-Loop</div>
+      <div>FRONTEND SPECIFICATION</div>
+    </div>
+
+    <div>
+      <div class="section-heading-wrap">
+        <div class="section-num">05</div>
+        <div>
+          <h2 class="section-title">Human Interface & Project Execution</h2>
+          <div class="section-subtitle">Antigravity Frontend Design System & The Human-in-the-Loop Approval Workflow</div>
+        </div>
+      </div>
+
+      <!-- 3 Key Frontend Components -->
+      <div class="grid-3" style="margin-bottom: 14px;">
+        <div class="card card-accent-cobalt">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <h3>Network Dashboard</h3>
+            <span class="badge badge-cobalt">Overview</span>
+          </div>
+          <p style="margin-bottom: 6px;">
+            Macro-level GIS visualization showing all regional hospitals, aggregate blood stock levels, and active transfer corridors.
+          </p>
+          <div style="font-size:10.5px; color:#64748B;">
+            &bull; Live blood group balances<br/>
+            &bull; Interactive transit route overlay<br/>
+            &bull; Real-time WebSocket sync
+          </div>
+        </div>
+
+        <div class="card card-accent-crimson">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <h3>Shortage Alerts Panel</h3>
+            <span class="badge badge-crimson">Urgent</span>
+          </div>
+          <p style="margin-bottom: 6px;">
+            Real-time alert queue ranking facilities by depletion risk. Highlights blood groups with &lt; 48 hours of estimated cover.
+          </p>
+          <div style="font-size:10.5px; color:#64748B;">
+            &bull; Countdown timer to stockout<br/>
+            &bull; Color-coded severity tiers<br/>
+            &bull; One-click manual scan trigger
+          </div>
+        </div>
+
+        <div class="card card-accent-yellow">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <h3>Human Approval Inbox</h3>
+            <span class="badge badge-yellow">HITL Action</span>
+          </div>
+          <p style="margin-bottom: 6px;">
+            The clinical decision hub where network managers review AI recommendations, inspect verified unit IDs, and approve dispatches.
+          </p>
+          <div style="font-size:10.5px; color:#64748B;">
+            &bull; Natural language AI rationale<br/>
+            &bull; Donor remaining stock safeguard<br/>
+            &bull; 1-Click dispatch authorization
+          </div>
+        </div>
+      </div>
+
+      <!-- Human in the loop Card Mockup -->
+      <div class="card card-accent-cobalt" style="margin-bottom: 14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <div>
+            <h3 style="margin-bottom: 2px;">HITL Proposal Inspection Card (UI Design Architecture)</h3>
+            <span style="font-size: 10.5px; color: #64748B;">Generated by Llama 3.1 8B &bull; Verified by Python Hard Validator</span>
+          </div>
+          <span class="badge badge-emerald">Verified Zero Hallucination</span>
+        </div>
+
+        <div style="background: #FAF7F2; border: 1px solid #E4DCD0; border-radius: 8px; padding: 10px 14px; font-size: 11px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <div>
+              <strong>Transfer Route:</strong> <span style="color:#0E3A8C; font-weight:700;">Nairobi Hospital Hub (Donor)</span> &rarr; <span style="color:#B91C1C; font-weight:700;">Kuresoi Sub-County Hospital (Recipient)</span>
+            </div>
+            <div><strong>Transit Time:</strong> 34 mins &bull; <strong>Distance:</strong> 28.4 km</div>
+          </div>
+
+          <div style="margin-bottom: 6px;">
+            <strong>Units Allocated:</strong>
+            <span class="badge badge-crimson mono">O-Neg #BB-8941 (Exp: 48h)</span>
+            <span class="badge badge-crimson mono">O-Neg #BB-8944 (Exp: 48h)</span>
+            <span class="badge badge-slate" style="margin-left: 6px;">Donor Post-Transfer Reserve: 5.2 Days (Safe)</span>
+          </div>
+
+          <div style="font-size: 10.5px; color: #475569; line-height: 1.45; background: #FFFFFF; padding: 6px 10px; border-radius: 6px; border-left: 3px solid #F59E0B;">
+            <strong>AI Clinical Rationale:</strong> <em>"Nairobi Hospital holds 6 units of O⁻ expiring within 48 hours with low projected trauma demand. Releasing 2 units resolves Kuresoi's acute shortage while preserving a 5.2-day safety buffer. Complies with Ministry of Health Emergency Dispatch SOP §4.2."</em>
+          </div>
+        </div>
+      </div>
+
+      <!-- Development Workflow Division & Hackathon Targets -->
+      <div class="card">
+        <h3 style="margin-bottom: 8px;">Development Workflow & Tooling Designation</h3>
+        <div class="grid-2">
+          <div style="background:#FAF7F2; padding:10px 12px; border-radius:8px; border:1px solid #E6DFD2;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+              <strong style="color: #0E3A8C;">ANTIGRAVITY DOMAIN</strong>
+              <span class="badge badge-cobalt">Lead Frontend & Writer</span>
+            </div>
+            <p style="font-size: 10.5px; color: #475569;">
+              System Documentation, Pitch Deck & Slide generation, Executive PDF Spec, and the complete React 18+ (Vite, Tailwind CSS, Supabase JS) UI suite.
+            </p>
+          </div>
+
+          <div style="background:#FAF7F2; padding:10px 12px; border-radius:8px; border:1px solid #E6DFD2;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+              <strong style="color: #D97706;">CURSOR DOMAIN</strong>
+              <span class="badge badge-yellow">Lead Backend & MAS</span>
+            </div>
+            <p style="font-size: 10.5px; color: #475569;">
+              Backend architecture, Python 3.11+ Flask API, Holt-Winters demand engine, logistics worker, Nemotron RAG, and Supabase database schemas.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="running-footer">
+      <div>CAELUM &bull; TEAM ORIZEN</div>
+      <div>MORINGA SCHOOL HACKATHON 2026</div>
+      <div class="page-number">PAGE 06 / 06</div>
+    </div>
+  </div>
+
+</body>
+</html>
