@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Moringa Hackathon 2026 Project Proposal - CAELUM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #F6F3ED; /* Warm Beige */
+      color: #1E293B;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .page {
+      width: 210mm;
+      height: 297mm;
+      position: relative;
+      background-color: #F6F3ED;
+      padding: 18mm 20mm 16mm 20mm;
+      page-break-after: always;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .running-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #64748B;
+      border-bottom: 1.5px solid #E4DCD0;
+      padding-bottom: 6px;
+      margin-bottom: 14px;
+    }
+
+    .running-header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #0E3A8C;
+    }
+
+    .running-header-badge::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: #F59E0B;
+    }
+
+    .running-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: #64748B;
+      border-top: 1.5px solid #E4DCD0;
+      padding-top: 6px;
+      margin-top: auto;
+    }
+
+    .page-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: #0E3A8C;
+      background: #EAE3D4;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    /* Headings */
+    .sec-num {
+      display: inline-block;
+      font-size: 14px;
+      font-weight: 800;
+      color: #0E3A8C;
+      background: #EBF2FE;
+      padding: 2px 8px;
+      border-radius: 5px;
+      margin-right: 6px;
+      border: 1px solid #C7DCFD;
+    }
+
+    h2 {
+      font-size: 15px;
+      font-weight: 800;
+      color: #0F172A;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    h3 {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 4px;
+    }
+
+    p {
+      color: #334155;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .card {
+      background: #FFFFFF;
+      border: 1px solid #E6DFD2;
+      border-radius: 8px;
+      padding: 11px 14px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+      margin-bottom: 10px;
+    }
+
+    .card-accent-cobalt { border-top: 3px solid #0E3A8C; }
+    .card-accent-yellow { border-top: 3px solid #F59E0B; }
+    .card-accent-emerald { border-top: 3px solid #059669; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .badge-cobalt { background: #EBF2FE; color: #0E3A8C; border: 1px solid #C7DCFD; }
+    .badge-yellow { background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; }
+    .badge-emerald { background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; }
+    .badge-crimson { background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; }
+
+    /* Hero Strip */
+    .hero-banner {
+      background: linear-gradient(135deg, #092357 0%, #0E3A8C 100%);
+      border-radius: 10px;
+      padding: 16px 20px;
+      color: #FFFFFF;
+      margin-bottom: 12px;
+    }
+
+    .hero-banner h1 {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-banner span.yellow { color: #FBBF24; }
+
+    .meta-tag {
+      font-size: 9.5px;
+      color: #CBD5E1;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    .quote-box {
+      background: #FAF7F0;
+      border-left: 3.5px solid #F59E0B;
+      border-radius: 6px;
+      padding: 9px 12px;
+      font-size: 10.5px;
+      line-height: 1.5;
+      color: #334155;
+      margin-bottom: 10px;
+    }
+
+    .timeline-item {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .timeline-time {
+      width: 120px;
+      flex-shrink: 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #0E3A8C;
+      background: #EBF2FE;
+      padding: 3px 6px;
+      border-radius: 4px;
+      height: fit-content;
+      text-align: center;
+    }
+
+    .timeline-desc {
+      flex: 1;
+      font-size: 10.5px;
+      color: #334155;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= PAGE 1 ================= -->
+  <div class="page">
+    <div>
+      <div class="running-header">
+        <div class="running-header-badge">Moringa School Student Engagement Hackathon 2026</div>
+        <div>Official Project Proposal</div>
+      </div>
+
+      <!-- Hero Banner -->
+      <div class="hero-banner">
+        <div style="font-size: 9.5px; font-weight: 700; color: #FBBF24; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px;">
+          Theme: People First, AI Second &bull; Challenge: Building Trust in Communities
+        </div>
+        <h1><span class="yellow">CAELUM</span></h1>
+        <div class="meta-tag">Centralized Agent Environment for Lifesaving and Urgent Mobility &bull; Team ORIZEN</div>
+      </div>
+
+      <!-- 1. Project Overview -->
+      <h2><span class="sec-num">1</span> Project Overview</h2>
+      <div class="card card-accent-cobalt">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 11px;">
+          <div><strong>Project Name:</strong> CAELUM</div>
+          <div><strong>Team Name:</strong> ORIZEN</div>
+          <div><strong>Challenge Area:</strong> Healthcare Logistics &amp; Emergency Access</div>
+        </div>
+
+        <div class="grid-2">
+          <div style="background:#FAF7F2; padding:7px 10px; border-radius:6px; border:1px solid #EBE4D8;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="color:#0E3A8C; font-size:11px;">Kevin Ongaro</strong>
+              <span class="badge badge-cobalt">Full-Stack SE &bull; Lead</span>
+            </div>
+            <p style="font-size:10px; margin-top:2px;">
+              <strong>System Architecture &amp; Orchestration:</strong> Drives the multi-agent pipeline and the precise handoff between deterministic Python workers and the Llama 3.1 8B orchestrator, ensuring strict Pydantic JSON context execution.
+            </p>
+          </div>
+
+          <div style="background:#FAF7F2; padding:7px 10px; border-radius:6px; border:1px solid #EBE4D8;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="color:#D97706; font-size:11px;">Antony Maina</strong>
+              <span class="badge badge-yellow">Data Scientist</span>
+            </div>
+            <p style="font-size:10px; margin-top:2px;">
+              <strong>Intelligence Layer:</strong> Tunes Holt-Winters exponential smoothing parameters for the Forecasting Worker and optimizes chunking and cosine similarity thresholds for the Nemotron RAG Retriever.
+            </p>
+          </div>
+
+          <div style="background:#FAF7F2; padding:7px 10px; border-radius:6px; border:1px solid #EBE4D8;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="color:#047857; font-size:11px;">Edwin Ngengi</strong>
+              <span class="badge badge-emerald">Full-Stack SE</span>
+            </div>
+            <p style="font-size:10px; margin-top:2px;">
+              <strong>Core Infrastructure &amp; Backend:</strong> Owns the Supabase PostgreSQL schema, `pgvector` implementation, Python backend services, and hard database state validation logic.
+            </p>
+          </div>
+
+          <div style="background:#FAF7F2; padding:7px 10px; border-radius:6px; border:1px solid #EBE4D8;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="color:#0E3A8C; font-size:11px;">Caren Chemjor</strong>
+              <span class="badge badge-cobalt">Full-Stack SE &bull; UI Lead</span>
+            </div>
+            <p style="font-size:10px; margin-top:2px;">
+              <strong>Frontend &amp; Real-time State:</strong> Drives React 18+ components, Tailwind styling, WebSocket inventory syncing, and the Human-in-the-Loop (HITL) Approval Inbox.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Problem Statement -->
+      <h2><span class="sec-num">2</span> Problem Statement</h2>
+      <div class="quote-box">
+        <strong>Template Format:</strong> [Regional hospital transfusion officers and emergency coordinators] experience [preventable blood stockouts during urgent surgeries while nearby hospitals incinerate expiring units] because [inventory data is trapped in isolated facility silos and transfers rely on frantic, 45-minute phone-call chains without real-time logistics or policy visibility]. This makes it difficult for them to [secure compatible donor blood within the critical golden hour of trauma and obstetric emergencies, leading to preventable maternal and accident mortalities]. We want to explore a solution that helps them [proactively predict shortages, deterministically route units approaching expiration, and approve verified emergency transfers in under 5 seconds with absolute clinical trust and zero hallucination risk].
+      </div>
+      <p style="margin-bottom: 10px;">
+        <strong>Project Statement:</strong> Blood is a perishable, non-fungible biological resource (packed red blood cells expire in 35–42 days). In regional healthcare networks across Kenya, blood banking faces a tragic paradox: sub-county facilities frequently face acute stockouts during postpartum hemorrhages, while tertiary hospitals 35 km away incinerate viable units expiring without surgical demand. CAELUM eliminates this manual telephony chaos with an autonomous, verified multi-agent platform.
+      </p>
+
+      <!-- 3. Target Users & Community Insights -->
+      <h2><span class="sec-num">3</span> Target Users &amp; Community Insights</h2>
+      <div class="grid-2">
+        <div class="card card-accent-cobalt">
+          <h3>User Segments</h3>
+          <p style="margin-bottom: 4px;"><strong>Primary Users:</strong> Hospital Blood Bank Technologists &amp; Regional Health Network Dispatchers managing daily inventory.</p>
+          <p><strong>Secondary Users:</strong> Emergency surgeons, obstetric clinicians, and cold-chain medical couriers.</p>
+        </div>
+        <div class="card card-accent-yellow">
+          <h3>Key User Needs</h3>
+          <ul style="font-size: 10px; color: #475569; padding-left: 14px; line-height: 1.45;">
+            <li>Instant, cross-hospital inventory visibility by ABO/Rh group and expiry.</li>
+            <li>Cold-chain and shelf-life transit mathematical guarantees.</li>
+            <li>Automated hospital transfer policy &amp; MOU verification.</li>
+            <li>Preserved clinical authority via 1-click human approval cards.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="running-footer">
+      <div>TEAM ORIZEN &bull; MORINGA HACKATHON 2026</div>
+      <div>CAELUM &bull; TEAM ORIZEN</div>
+      <div class="page-number">PAGE 01 / 02</div>
+    </div>
+  </div>
+
+
+  <!-- ================= PAGE 2 ================= -->
+  <div class="page">
+    <div>
+      <div class="running-header">
+        <div class="running-header-badge">Moringa School Student Engagement Hackathon 2026</div>
+        <div>Technical Solution &amp; Execution Roadmap</div>
+      </div>
+
+      <!-- 4. Proposed Solution & Key Features -->
+      <h2><span class="sec-num">4</span> Proposed Solution &amp; Key Features</h2>
+      <div class="card card-accent-cobalt">
+        <p style="margin-bottom: 6px;">
+          <strong>CAELUM</strong> is a Hybrid Multi-Agent System (MAS) combining classical statistics, deterministic transit mathematics, and single-shot AI policy synthesis:
+        </p>
+        <div class="grid-3">
+          <div style="background:#FAF7F2; padding:7px 9px; border-radius:6px; border:1px solid #EBE4D8;">
+            <strong style="color:#0E3A8C; font-size:10.5px;">1. Predictive Shortage Forecasting</strong>
+            <p style="font-size:9.5px; margin-top:2px;">Supabase stock ledger paired with classical Holt-Winters exponential smoothing to predict depletion up to 72 hours in advance.</p>
+          </div>
+          <div style="background:#FAF7F2; padding:7px 9px; border-radius:6px; border:1px solid #EBE4D8;">
+            <strong style="color:#D97706; font-size:10.5px;">2. Deterministic Corridors &amp; RAG</strong>
+            <p style="font-size:9.5px; margin-top:2px;">Python logistics worker filters valid transit routes against shelf life; NVIDIA Nemotron 3.5 Embed searches hospital transfer SOPs via `pgvector`.</p>
+          </div>
+          <div style="background:#FAF7F2; padding:7px 9px; border-radius:6px; border:1px solid #EBE4D8;">
+            <strong style="color:#047857; font-size:10.5px;">3. Single-Shot HITL Approval Inbox</strong>
+            <p style="font-size:9.5px; margin-top:2px;">Llama 3.1 8B synthesizes options into an actionable clinical recommendation card, verified by a hard Python validator for 1-click dispatch.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 & 6. Role of Tech, Trust & Safety -->
+      <div class="grid-2">
+        <div class="card card-accent-yellow">
+          <h2><span class="sec-num">5</span> Role of Technology &amp; AI (People First)</h2>
+          <p style="font-size:10px; margin-bottom:5px;">
+            <strong>Why this Tech?</strong> React 18 + Tailwind for low-latency emergency triage; Supabase (`pgvector`) for unified relational + vector integrity; Python Statsmodels for auditable forecasting.
+          </p>
+          <p style="font-size:10px;">
+            <strong>Role of AI:</strong> AI does NOT calculate math, routes, or inventory. It serves strictly as a natural-language policy synthesizer. The human clinical officer retains 100% authority.
+          </p>
+        </div>
+
+        <div class="card card-accent-emerald">
+          <h2><span class="sec-num">6</span> Trust, Safety &amp; Data Privacy</h2>
+          <p style="font-size:10px; margin-bottom:5px;">
+            <strong>Source Transparency:</strong> Cites exact mathematical variables and retrieved clauses from hospital transfer SOPs.
+          </p>
+          <p style="font-size:10px; margin-bottom:5px;">
+            <strong>Data Minimization:</strong> Zero patient PII; tracks only anonymous unit lots and hospital GPS coordinates.
+          </p>
+          <p style="font-size:10px;">
+            <strong>Sovereign On-Prem Ready:</strong> Containerized via local NVIDIA NIM, fully compliant with the <em>Kenya Data Protection Act (2019)</em>.
+          </p>
+        </div>
+      </div>
+
+      <!-- 7. Friday Build Plan & Execution Roadmap -->
+      <h2><span class="sec-num">7</span> Friday Build Plan &amp; Execution Roadmap</h2>
+      <div class="card">
+        <div class="timeline-item">
+          <div class="timeline-time">THURSDAY</div>
+          <div class="timeline-desc">
+            <strong>Orientation, Discovery &amp; Phase 1 Build:</strong> Met, discussed, and ideated. Finalized MAS architecture, designed Supabase schema with `pgvector`, built baseline deterministic Python math workers, and scaffolded React 18 frontend.
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-time">09:00 - 11:30 AM</div>
+          <div class="timeline-desc">
+            <strong>Building Phase 2:</strong> Integrate Llama 3.1 8B single-shot orchestrator with strict Pydantic JSON validation; implement Nemotron policy embeddings; connect Supabase WebSockets; build Shortage Alerts and Approval Inbox.
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-time">11:30 - 12:45 PM</div>
+          <div class="timeline-desc">
+            <strong>Tests &amp; Hard Validation:</strong> Unit test deterministic math workers; run adversarial tests (injecting fake unit IDs to verify Python Hard Validator blocks 100% of hallucinations); test WebSocket latency under multi-client loads.
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-time">12:45 - 01:30 PM</div>
+          <div class="timeline-desc">
+            <strong>Final Touches &amp; Project Completion:</strong> UI polish (animations, dispatch notifications); pitch rehearsal; repository verification; final proposal and codebase submission ahead of the <strong>1:30 PM deadline</strong>.
+          </div>
+        </div>
+      </div>
+
+      <!-- 8. Limitations & Future Scope -->
+      <h2><span class="sec-num">8</span> Potential Limitations &amp; Future Scope</h2>
+      <div class="card" style="margin-bottom:0;">
+        <div class="grid-2">
+          <div>
+            <strong>Current Limitations:</strong>
+            <p style="font-size:10px; margin-top:2px;">Prototype models a regional network of up to 10 facilities focusing on packed RBC and platelets. Travel times use regional velocity matrices rather than live GPS traffic feeds.</p>
+          </div>
+          <div>
+            <strong>Future Roadmap:</strong>
+            <p style="font-size:10px; margin-top:2px;">Integrate BLE cold-chain temperature sensors inside smart transport boxes; connect to autonomous medical drone APIs (Zipline); federate with Kenya National Blood Transfusion Service (KNBTS).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="running-footer">
+      <div>TEAM ORIZEN &bull; MORINGA HACKATHON 2026</div>
+      <div>CAELUM &bull; TEAM ORIZEN</div>
+      <div class="page-number">PAGE 02 / 02</div>
+    </div>
+  </div>
+
+</body>
+</html>
