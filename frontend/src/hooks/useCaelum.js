@@ -52,9 +52,14 @@ export function useCaelum(regionCode) {
 
   // Trigger Multi-Agent Regional Scan
   const runScan = useCallback(async () => {
+    const configuredBase = import.meta.env.VITE_API_BASE_URL;
+    const base = (configuredBase || (import.meta.env.DEV ? "http://localhost:5000/api" : "")).replace(/\/$/, "");
+    if (!base) {
+      showToast(`${region.name} is selected. The regional check is not connected on this site yet.`, "warning");
+      return;
+    }
     setIsScanning(true);
     showToast(`Checking ${region.name}. Routes stay inside this region.`, "info");
-    const base = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api").replace(/\/$/, "");
 
     try {
       const response = await fetch(`${base}/orchestrate`, {

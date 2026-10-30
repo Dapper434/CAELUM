@@ -1,15 +1,11 @@
-# Moringa Hackathon 2026: Project Proposal
-
-**Theme:** People First, AI Second  
-**Hackathon Challenge:** Human-Centered Technology: Building Trust in Communities  
+# CAELUM Project Proposal
 
 ---
 
 ## 1. Project Overview
 
 * **Project Name:** CAELUM (*Centralized Agent Environment for Lifesaving and Urgent Mobility*)
-* **Team Name:** ORIZEN
-* **Challenge Area:** Healthcare Logistics, Community Emergency Access & Public Health
+* **Focus:** Healthcare logistics and emergency access
 * **Team Members & Roles:**
   * **Kevin Ongaro** &mdash; *Team Lead / Full-Stack Software Engineer*  
     **Role:** System Architecture & Orchestration. Drives the multi-agent orchestration pipeline, managing the precise handoff between deterministic Python workers and the Llama 3.1 8B orchestrator, ensuring the strict Pydantic JSON context payload executes without hallucinations.
@@ -68,7 +64,7 @@ CAELUM is a **Hybrid Multi-Agent Logistics System** that unites predictive stati
 
 ---
 
-## 5. Role of Technology & AI (*People First, AI Second*)
+## 5. Role of Technology & AI
 
 * **Why this technology?**  
   * **React 18 & Tailwind CSS:** Delivers an ultra-responsive, zero-latency clinical dashboard suited for high-stress emergency operations rooms.
@@ -76,7 +72,7 @@ CAELUM is a **Hybrid Multi-Agent Logistics System** that unites predictive stati
   * **Classical Python Statistics (Statsmodels):** Ensures mathematical demand forecasting is auditable, repeatable, and completely transparent, avoiding black-box arithmetic.
 
 * **Role of AI:**  
-  In adherence to the **People First, AI Second** doctrine, AI is intentionally restricted from performing life-critical math or executing autonomous dispatches:
+  AI is intentionally restricted from performing life-critical math or executing autonomous dispatches:
   1. **Zero Mathematical Delegation:** The AI is never asked to calculate distances, subtract shelf lives, or invent unit codes. All hard constraints are computed deterministically by verifiable code before the AI is invoked.
   2. **Qualitative Decision Support:** The AI acts solely as an intelligent synthesizer. It ingests the pre-verified options and policy excerpts to explain the clinical and operational trade-offs in clear, natural language (e.g., explaining why a facility 8 km further away was chosen because the closer hospital would fall below its minimum emergency trauma reserve).
   3. **Strict Human Authority:** The final action is always taken by a human clinical officer. AI eliminates cognitive fatigue and administrative decision paralysis, empowering human healthcare workers to make fast, life-saving choices with confidence.
@@ -109,14 +105,14 @@ CAELUM is a **Hybrid Multi-Agent Logistics System** that unites predictive stati
 
 * **Friday Afternoon (12:45 PM – 01:30 PM) &mdash; Final Touches & Project Completion:**
   * **12:45 PM – 01:15 PM:** Final UI polish: responsive layout adjustments, transition animations, and courier dispatch confirmation alerts.
-  * **01:15 PM – 01:30 PM:** Rehearse pitch flow, verify live repository and demo links, and submit the proposal and codebase ahead of the **1:30 PM deadline**.
+  * **01:15 PM – 01:30 PM:** Walk through the screens, and check the repository and demo links.
 
 ---
 
 ## 8. Potential Limitations & Future Scope
 
 * **Current Limitations:**
-  * The hackathon prototype models a regional cluster of up to 10 hospital nodes focusing on packed red blood cells (RBC) and platelets.
+  * This version models a regional cluster of up to 10 hospital nodes focusing on packed red blood cells (RBC) and platelets.
   * Travel times are modeled using regional velocity matrices and Haversine distances rather than real-time GPS traffic feeds.
 * **Future Roadmap:**
   * **IoT Cold-Chain Telemetry:** Integrating Bluetooth Low Energy (BLE) temperature loggers inside smart transport cooler boxes to trigger automatic route recalculation if temperatures exceed 6°C.

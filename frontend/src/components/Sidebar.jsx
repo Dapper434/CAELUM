@@ -86,7 +86,6 @@ export default function Sidebar({ activeTab, setActiveTab, alertCount, proposalC
         </div>
       </div>
 
-      {/* Philosophy Card Borrowed from Moringa Rubric */}
       <div className="hidden md:block p-3 bg-amber-500/10 dark:bg-amber-950/30 border border-amber-500/20 dark:border-amber-800/40 rounded-2xl text-xs">
         <div className="flex items-center gap-1.5 font-bold text-amber-800 dark:text-amber-300 mb-1">
           <HeartHandshake className="w-4 h-4 text-amber-600 dark:text-amber-400" />

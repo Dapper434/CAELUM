@@ -2,11 +2,8 @@
 > **Centralized Agent Environment for Lifesaving and Urgent Mobility**  
 > *A Production-Grade Hybrid Multi-Agent System (MAS) for Regional Blood Inventory Optimization, Deterministic Transfer Validation, and Sovereign AI Orchestration.*
 
-[![Moringa School Hackathon 2026](https://img.shields.io/badge/Moringa_School-Hackathon_2026-blue.svg)](https://moringaschool.com)
-[![Team ORIZEN](https://img.shields.io/badge/Team-ORIZEN-0047AB.svg)](#team-orizen)
 [![Architecture: Hybrid MAS](https://img.shields.io/badge/Architecture-Hybrid_MAS-059669.svg)](#multi-agent-system-architecture)
 [![Safety: Deterministic Math](https://img.shields.io/badge/Safety-Deterministic_Math-D97706.svg)](#deterministic-safety-guarantee)
-[![Data Sovereignty: NVIDIA NIM](https://img.shields.io/badge/Data_Sovereignty-NVIDIA_NIM_Ready-76B900.svg)](#data-sovereignty--nvidia-nim)
 
 ---
 
@@ -15,12 +12,10 @@
 2. [The Core Philosophy: Deterministic Safety vs. Single-Shot LLM](#2-the-core-philosophy-deterministic-safety-vs-single-shot-llm)
 3. [System Architecture & The Hybrid MAS](#3-system-architecture--the-hybrid-mas)
 4. [The 8-Step Orchestration Loop](#4-the-8-step-orchestration-loop)
-5. [Data Sovereignty & Local NVIDIA NIM Deployment](#5-data-sovereignty--local-nvidia-nim-deployment)
-6. [Tech Stack & Engineering Division](#6-tech-stack--engineering-division)
-7. [Repository Structure](#7-repository-structure)
-8. [Human-in-the-Loop (HITL) Workflow](#8-human-in-the-loop-hitl-workflow)
-9. [Verification & Zero-Hallucination Guarantees](#9-verification--zero-hallucination-guarantees)
-10. [Hackathon Pitch & Judging Highlights](#10-hackathon-pitch--judging-highlights)
+5. [Tech Stack & Engineering Division](#5-tech-stack--engineering-division)
+6. [Repository Structure](#6-repository-structure)
+7. [Human-in-the-Loop (HITL) Workflow](#7-human-in-the-loop-hitl-workflow)
+8. [Verification & Zero-Hallucination Guarantees](#8-verification--zero-hallucination-guarantees)
 
 ---
 
@@ -35,7 +30,7 @@ In regional healthcare networks, blood management suffers from a tragic paradox:
 * **Regulatory & Administrative Friction:** Emergency blood transfers must adhere to strict clinical SOPs (cross-matching, temperature-controlled cold-chain protocols, regional quota restrictions), creating administrative decision paralysis under time pressure.
 
 ### The Solution: CAELUM
-**CAELUM** (*Centralized Agent Environment for Lifesaving and Urgent Mobility*) is an autonomous, hybrid multi-agent logistics platform developed by **Team ORIZEN**. 
+**CAELUM** (*Centralized Agent Environment for Lifesaving and Urgent Mobility*) is a hybrid logistics platform for regional blood transfers. 
 
 CAELUM continuously unifies regional blood inventories, forecasts depletion dates using classical statistical forecasting, deterministically calculates valid transit corridors with strict cold-chain and shelf-life constraints, retrieves relevant hospital transfer policies via vector RAG, and uses an AI Orchestrator to generate clinically sound, legally compliant transfer proposals for immediate human approval.
 
@@ -72,7 +67,7 @@ CAELUM adheres to a strict engineering doctrine:
 
 ## 3. System Architecture & The Hybrid MAS
 
-CAELUM employs an **Orchestrator-Worker Multi-Agent Architecture** built on Python, Flask, Supabase, and OpenRouter / NVIDIA NIM:
+CAELUM employs an **Orchestrator-Worker Multi-Agent Architecture** built on Python, Flask, and Supabase:
 
 ```
                                   +---------------------+
@@ -111,7 +106,6 @@ CAELUM employs an **Orchestrator-Worker Multi-Agent Architecture** built on Pyth
                            +-----------------------------------+
                            |      AGENT 4: ORCHESTRATOR        |
                            |       Llama 3.1 8B Instruct       |
-                           | (OpenRouter / Local NVIDIA NIM)   |
                            +------------------+----------------+
                                               |
                                     [Structured JSON Proposal]
@@ -191,62 +185,7 @@ sequenceDiagram
 
 ---
 
-## 5. Data Sovereignty & Local NVIDIA NIM Deployment
-
-In public health and clinical informatics, patient and inventory telemetry must comply with strict data protection statutes (including HIPAA and the **Kenya Data Protection Act, 2019**). 
-
-### The Problem with Public LLM APIs
-Sending hospital inventory metrics, regional supply vulnerabilities, and patient blood requests to proprietary public cloud models introduces:
-1. **Data Leakage Risks:** Exposing regional strategic medical reserves to external commercial model trainers.
-2. **Connectivity Dependency:** Cloud outages or high latency in rural county facilities interrupt emergency triage.
-3. **Unpredictable Billing:** API token meters during disaster surges.
-
-### The CAELUM Solution: NVIDIA NIM Ready
-CAELUM is architected to run seamlessly on-premise using **NVIDIA NIM (NVIDIA Inference Microservice)**:
-* **Self-Contained Containerization:** Llama 3.1 8B Instruct and Nemotron 3.5 Embed can be deployed as standardized Docker containers on regional health department GPUs (e.g., NVIDIA RTX 4090, A100, or L40S).
-* **Air-Gapped Operation:** All RAG embeddings and LLM reasoning execute inside the hospital intranet. No medical telemetry ever leaves the sovereign perimeter.
-* **Standardized OpenAI-Compatible API:** The Flask backend interfaces with NVIDIA NIM via standard OpenAI SDK endpoints—allowing zero-code switching between OpenRouter prototyping and production on-prem NIM microservices:
-
-```python
-# app/services/orchestrator.py
-from openai import OpenAI
-import os
-
-# Production: Pointed to local hospital NVIDIA NIM instance
-# Prototyping: Pointed to OpenRouter
-client = OpenAI(
-    base_url=os.getenv("NIM_BASE_URL", "https://openrouter.ai/api/v1"),
-    api_key=os.getenv("NIM_API_KEY", os.getenv("OPENROUTER_API_KEY"))
-)
-```
-
----
-
-## 6. Tech Stack & Engineering Division
-
-CAELUM was built under an accelerated hackathon workflow with a strict division of engineering responsibility between two specialized AI development partners:
-
-### Team ORIZEN Workflow Matrix
-
-```
-+-----------------------------------------------------------------------------------------+
-|                                    PROJECT LEADERSHIP                                   |
-|                                       Team ORIZEN                                       |
-+-------------------------------------------+---------------------------------------------+
-|               ANTIGRAVITY                 |                    CURSOR                   |
-|         Lead Frontend Engineer            |             Lead Backend Architect          |
-|          & Technical Writer               |              & Multi-Agent Systems          |
-+-------------------------------------------+---------------------------------------------+
-| * System Documentation & Pitch Deck       | * Multi-Agent System (MAS) Orchestration    |
-| * Executive Technical Spec (PDF)          | * Deterministic Python Math Workers         |
-| * React 18+ Single Page Application       | * Flask 3 REST API & Routing Services       |
-| * Vite Build Toolchain & Tailwind CSS     | * Supabase Database, Auth & pgvector setup  |
-| * Network Overview Dashboard UI           | * Holt-Winters Demand Forecasting Engine    |
-| * Real-time Shortage Alerts Panel         | * Logistics Transit Time & Shelf-Life Math  |
-| * Human-in-the-Loop (HITL) Approval Inbox | * Hard Python Post-Validation Logic         |
-| * Vercel Deployment Pipeline              | * Render Hosting & Database Seed Scripts    |
-+-------------------------------------------+---------------------------------------------+
-```
+## 5. Tech Stack & Engineering Division
 
 ### Complete Stack Breakdown
 
@@ -264,7 +203,7 @@ CAELUM was built under an accelerated hackathon workflow with a strict division 
 
 ---
 
-## 7. Repository Structure
+## 6. Repository Structure
 
 ```text
 caelum/
@@ -285,7 +224,7 @@ caelum/
 │   ├── requirements.txt            # Python dependencies
 │   └── .env.example                # Backend environment configuration
 │
-├── frontend/                       # [Antigravity Domain] React 18+ User Interface
+├── frontend/                       # React 18+ user interface
 │   ├── src/
 │   │   ├── assets/                 # SVGs, icons, and branding collateral
 │   │   ├── components/
@@ -318,7 +257,7 @@ caelum/
 
 ---
 
-## 8. Human-in-the-Loop (HITL) Workflow
+## 7. Human-in-the-Loop (HITL) Workflow
 
 In critical medical infrastructure, **no AI system should autonomously dispatch physiological assets without clinical oversight.**
 
@@ -338,7 +277,7 @@ CAELUM implements a strict **Human-in-the-Loop (HITL)** governance model:
 
 ---
 
-## 9. Verification & Zero-Hallucination Guarantees
+## 8. Verification & Zero-Hallucination Guarantees
 
 CAELUM achieves an absolute zero-hallucination guarantee through **Tripartite Defense**:
 
@@ -354,26 +293,3 @@ CAELUM achieves an absolute zero-hallucination guarantee through **Tripartite De
 ```
 
 If the LLM outputs a unit ID not found in the pre-filtered candidate pool, the transaction is **instantly rejected**, an alert is logged to the system audit trail, and the deterministic fallback (Option #1 calculated by Agent 2) is promoted to the Human Approval Inbox.
-
----
-
-## 10. Hackathon Pitch & Judging Highlights
-
-### Why CAELUM Wins
-
-| Judging Criterion | How CAELUM Delivers |
-|---|---|
-| **Technical Innovation** | Novel **Hybrid Multi-Agent Architecture** combining classical statistical time-series forecasting (Holt-Winters), deterministic spatial logistics, and single-shot LLM orchestration with NVIDIA Nemotron vector RAG. |
-| **Real-World Impact** | Solves the fatal blood paradox: simultaneously cutting wasted units by up to **85%** and reducing emergency cross-hospital procurement time from **45 minutes to under 5 seconds**. |
-| **Feasibility & Safety** | Zero hallucination risk via hard programmatic validation. No black-box mathematical errors. Complete clinical auditability. |
-| **Enterprise Readiness** | Strict data sovereignty readiness through **NVIDIA NIM** containerization. Compatible with national healthcare data privacy mandates. |
-| **Execution Quality** | Cleanly separated, production-grade codebase with modular microservices, full type validation, and an intuitive, accessible React interface. |
-
----
-
-### Team ORIZEN
-* **Frontend Lead & Technical Writer:** Antigravity (Powered by DeepMind)
-* **Backend Architect & Multi-Agent Lead:** Cursor
-* **Project:** Moringa School Hackathon 2026
-
-*Empowering healthcare networks with intelligent, sovereign, and verified logistical autonomy.*
