@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light" />
+  <title>CAELUM — Centralized Agent Environment for Lifesaving & Urgent Mobility</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'bg-canvas': '#F6F3ED',
+            'bg-surface': '#FFFFFF',
+            'bg-inset': '#FAF7F2',
+            'border-warm': '#E6DFD2',
+            'brand-cobalt': '#0E3A8C',
+            'brand-navy': '#092357',
+            'brand-burgundy': '#7A1A2B',
+            'brand-burgundy-hover': '#5E1321',
+            'brand-burgundy-light': '#FDF2F4',
+            'accent-yellow': '#F59E0B',
+            'status-crimson': '#DC2626',
+            'status-emerald': '#059669',
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Complete Deterministic Stylesheet (Immune to OS Dark Mode & High Contrast Across Modes) -->
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    /* ==========================================================================
+       THEME CONTRAST ENGINE: Guaranteed Text & Surface Visibility in BOTH Modes
+       ========================================================================== */
+
+    /* Brand & Status Solid Backgrounds (Guaranteed in both Daylight & Clinical Modes) */
+    .bg-brand-cobalt, button.bg-brand-cobalt, a.bg-brand-cobalt {
+      background-color: #0E3A8C !important;
+      color: #FFFFFF !important;
+    }
+    .bg-brand-navy {
+      background-color: #092357 !important;
+      color: #FFFFFF !important;
+    }
+    .bg-brand-burgundy, button.bg-brand-burgundy, span.bg-brand-burgundy {
+      background-color: #7A1A2B !important;
+      color: #FFFFFF !important;
+    }
+    .bg-status-crimson, button.bg-status-crimson, span.bg-status-crimson, div.bg-status-crimson {
+      background-color: #DC2626 !important;
+      color: #FFFFFF !important;
+    }
+    .bg-status-emerald, button.bg-status-emerald, span.bg-status-emerald, div.bg-status-emerald {
+      background-color: #059669 !important;
+      color: #FFFFFF !important;
+    }
+    .bg-accent-yellow, button.bg-accent-yellow {
+      background-color: #F59E0B !important;
+      color: #0F172A !important;
+    }
+
+    /* Solid buttons & badges text guarantee */
+    button.bg-brand-cobalt *, button.bg-status-emerald *, button.bg-status-crimson *, button.bg-brand-burgundy *,
+    .bg-brand-cobalt *, .bg-status-emerald *, .bg-status-crimson *, .bg-brand-burgundy * {
+      color: #FFFFFF !important;
+    }
+    button.bg-accent-yellow *, .bg-accent-yellow * {
+      color: #0F172A !important;
+    }
+
+    /* 1. DAYLIGHT MODE (Default / When not in dark mode) */
+    html, body, html:not(.dark), body:not(.dark) {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #F6F3ED !important;
+      color: #1E293B !important;
+      line-height: 1.5;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    
+    html:not(.dark) .bg-bg-canvas, body:not(.dark) .bg-bg-canvas { background-color: #F6F3ED !important; }
+    html:not(.dark) .bg-bg-surface, body:not(.dark) .bg-bg-surface { background-color: #FFFFFF !important; }
+    html:not(.dark) .bg-bg-inset, body:not(.dark) .bg-bg-inset { background-color: #FAF7F2 !important; }
+    html:not(.dark) .border-border-warm, body:not(.dark) .border-border-warm { border-color: #E6DFD2 !important; }
+
+    /* Text colors in Daylight Mode: Crisp dark slate on light surfaces */
+    html:not(.dark) .text-slate-900, body:not(.dark) .text-slate-900 { color: #0F172A !important; }
+    html:not(.dark) .text-slate-800, body:not(.dark) .text-slate-800 { color: #1E293B !important; }
+    html:not(.dark) .text-slate-700, body:not(.dark) .text-slate-700 { color: #334155 !important; }
+    html:not(.dark) .text-slate-600, body:not(.dark) .text-slate-600 { color: #475569 !important; }
+    html:not(.dark) .text-slate-500, body:not(.dark) .text-slate-500 { color: #64748B !important; }
+    html:not(.dark) .text-slate-400, body:not(.dark) .text-slate-400 { color: #64748B !important; }
+    html:not(.dark) .text-brand-cobalt, body:not(.dark) .text-brand-cobalt { color: #0E3A8C !important; }
+    html:not(.dark) .text-brand-burgundy, body:not(.dark) .text-brand-burgundy { color: #7A1A2B !important; }
+
+    /* Form inputs in Daylight Mode */
+    html:not(.dark) select, html:not(.dark) input,
+    body:not(.dark) select, body:not(.dark) input {
+      background-color: #FFFFFF !important;
+      border-color: #E6DFD2 !important;
+      color: #0F172A !important;
+    }
+
+    /* Badges & Chips in Daylight Mode */
+    html:not(.dark) .bg-amber-100 { background-color: #FEF3C7 !important; }
+    html:not(.dark) .text-amber-800, html:not(.dark) .text-amber-900, html:not(.dark) .text-amber-950 { color: #78350F !important; }
+    html:not(.dark) .border-amber-300 { border-color: #FCD34D !important; }
+    html:not(.dark) .bg-red-100 { background-color: #FEE2E2 !important; }
+    html:not(.dark) .text-status-crimson { color: #DC2626 !important; }
+    html:not(.dark) .bg-emerald-100 { background-color: #D1FAE5 !important; }
+    html:not(.dark) .text-emerald-800, html:not(.dark) .text-status-emerald { color: #047857 !important; }
+    html:not(.dark) .border-emerald-300 { border-color: #6EE7B7 !important; }
+    html:not(.dark) .bg-blue-100 { background-color: #DBEAFE !important; }
+    html:not(.dark) .bg-indigo-100 { background-color: #E0E7FF !important; }
+    html:not(.dark) .text-indigo-800 { color: #3730A3 !important; }
+    html:not(.dark) .bg-slate-100 { background-color: #F1F5F9 !important; }
+    html:not(.dark) .bg-slate-200 { background-color: #E2E8F0 !important; }
+
+    /* Inactive Nav tabs in Daylight Mode */
+    html:not(.dark) .nav-inactive {
+      background-color: #FAF7F2 !important;
+      border-color: #E6DFD2 !important;
+      color: #1E293B !important;
+    }
+    html:not(.dark) .nav-inactive * {
+      color: #1E293B !important;
+    }
+
+    /* 2. CLINICAL LOW-LIGHT MODE (When .dark or .clinical-mode is active) */
+    html.dark, html.dark body, body.dark,
+    html.clinical-mode, html.clinical-mode body, body.clinical-mode { 
+      background-color: #1E2433 !important; 
+      color: #E2E8F0 !important; 
+    }
+    html.dark .bg-bg-canvas, html.clinical-mode .bg-bg-canvas,
+    .dark .bg-bg-canvas, .clinical-mode .bg-bg-canvas { 
+      background-color: #1E2433 !important; 
+    }
+    html.dark .bg-bg-surface, html.clinical-mode .bg-bg-surface,
+    .dark .bg-bg-surface, .clinical-mode .bg-bg-surface { 
+      background-color: #283042 !important; 
+    }
+    html.dark .bg-bg-inset, html.clinical-mode .bg-bg-inset,
+    .dark .bg-bg-inset, .clinical-mode .bg-bg-inset { 
+      background-color: #1A202E !important; 
+    }
+    html.dark .border-border-warm, html.clinical-mode .border-border-warm,
+    .dark .border-border-warm, .clinical-mode .border-border-warm { 
+      border-color: #374259 !important; 
+    }
+
+    /* Text colors in Clinical Mode: Soft non-glaring off-whites and slates */
+    html.dark .text-slate-900, html.clinical-mode .text-slate-900,
+    html.dark .text-slate-800, html.clinical-mode .text-slate-800 { color: #F1F5F9 !important; }
+    html.dark .text-slate-700, html.clinical-mode .text-slate-700,
+    html.dark .text-slate-600, html.clinical-mode .text-slate-600 { color: #CBD5E1 !important; }
+    html.dark .text-slate-500, html.clinical-mode .text-slate-500,
+    html.dark .text-slate-400, html.clinical-mode .text-slate-400 { color: #94A3B8 !important; }
+    html.dark .text-brand-cobalt, html.clinical-mode .text-brand-cobalt { color: #60A5FA !important; }
+    html.dark .text-brand-burgundy, html.clinical-mode .text-brand-burgundy { color: #FDA4AF !important; }
+
+    /* Form inputs in Clinical Mode */
+    html.dark select, html.dark input,
+    html.clinical-mode select, html.clinical-mode input {
+      background-color: #1A202E !important;
+      border-color: #374259 !important;
+      color: #F1F5F9 !important;
+    }
+
+    /* Badges & Chips in Clinical Mode */
+    html.dark .bg-amber-100, html.clinical-mode .bg-amber-100 { background-color: rgba(245, 158, 11, 0.2) !important; }
+    html.dark .text-amber-800, html.clinical-mode .text-amber-800,
+    html.dark .text-amber-900, html.clinical-mode .text-amber-900,
+    html.dark .text-amber-950, html.clinical-mode .text-amber-950 { color: #FCD34D !important; }
+    html.dark .border-amber-300, html.clinical-mode .border-amber-300 { border-color: rgba(245, 158, 11, 0.4) !important; }
+    html.dark .bg-red-100, html.clinical-mode .bg-red-100 { background-color: rgba(220, 38, 38, 0.2) !important; }
+    html.dark .text-status-crimson, html.clinical-mode .text-status-crimson { color: #F87171 !important; }
+    html.dark .border-red-200, html.clinical-mode .border-red-200,
+    html.dark .border-red-300, html.clinical-mode .border-red-300 { border-color: rgba(220, 38, 38, 0.4) !important; }
+    html.dark .bg-emerald-100, html.clinical-mode .bg-emerald-100 { background-color: rgba(5, 150, 105, 0.2) !important; }
+    html.dark .text-emerald-800, html.clinical-mode .text-emerald-800,
+    html.dark .text-status-emerald, html.clinical-mode .text-status-emerald { color: #34D399 !important; }
+    html.dark .border-emerald-300, html.clinical-mode .border-emerald-300 { border-color: rgba(5, 150, 105, 0.4) !important; }
+    html.dark .bg-blue-100, html.clinical-mode .bg-blue-100 { background-color: rgba(14, 58, 140, 0.35) !important; }
+    html.dark .bg-indigo-100, html.clinical-mode .bg-indigo-100 { background-color: rgba(99, 102, 241, 0.3) !important; }
+    html.dark .text-indigo-800, html.clinical-mode .text-indigo-800 { color: #C7D2FE !important; }
+    html.dark .bg-slate-100, html.clinical-mode .bg-slate-100 { background-color: #1A202E !important; }
+    html.dark .bg-slate-200, html.clinical-mode .bg-slate-200 { background-color: #374259 !important; }
+    html.dark tr:hover, html.clinical-mode tr:hover { background-color: #1A202E !important; }
+
+    /* Inactive Nav tabs in Clinical Mode */
+    html.dark .nav-inactive, html.clinical-mode .nav-inactive {
+      background-color: #1A202E !important;
+      border-color: #374259 !important;
+      color: #CBD5E1 !important;
+    }
+    html.dark .nav-inactive *, html.clinical-mode .nav-inactive * {
+      color: #CBD5E1 !important;
+    }
+
+    /* 3. SOLID HEADER: Always deep cobalt-navy gradient with crisp white text */
+    header {
+      background: linear-gradient(135deg, #092357 0%, #0E3A8C 60%, #4A101C 100%) !important;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    header, header * {
+      color: #FFFFFF;
+    }
+    header .text-white { color: #FFFFFF !important; }
+    header .text-blue-200 { color: #BFDBFE !important; }
+    header .text-accent-yellow { color: #F59E0B !important; }
+
+    /* Basic Utility Definitions (Bulletproof offline fallbacks) */
+    .flex { display: flex; }
+    .inline-flex { display: inline-flex; }
+    .grid { display: grid; }
+    .hidden { display: none !important; }
+    .flex-col { flex-direction: column; }
+    .flex-row { flex-direction: row; }
+    .flex-1 { flex: 1 1 0%; }
+    .flex-shrink-0 { flex-shrink: 0; }
+    .flex-wrap { flex-wrap: wrap; }
+    .items-center { align-items: center; }
+    .items-start { align-items: flex-start; }
+    .justify-between { justify-content: space-between; }
+    .justify-center { justify-content: center; }
+    .justify-end { justify-content: flex-end; }
+    .gap-1 { gap: 0.25rem; }
+    .gap-1\.5 { gap: 0.375rem; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-2\.5 { gap: 0.625rem; }
+    .gap-3 { gap: 0.75rem; }
+    .gap-3\.5 { gap: 0.875rem; }
+    .gap-4 { gap: 1rem; }
+    .gap-6 { gap: 1.5rem; }
+
+    .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+    .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    @media (min-width: 640px) {
+      .sm\:inline { display: inline !important; }
+      .sm\:flex { display: flex !important; }
+      .sm\:block { display: block !important; }
+      .sm\:flex-row { flex-direction: row !important; }
+      .sm\:items-center { align-items: center !important; }
+      .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .sm\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .sm\:p-4 { padding: 1rem; }
+      .sm\:p-5 { padding: 1.25rem; }
+      .sm\:px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+      .sm\:px-3\.5 { padding-left: 0.875rem; padding-right: 0.875rem; }
+      .sm\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .sm\:py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+      .sm\:py-2\.5 { padding-top: 0.625rem; padding-bottom: 0.625rem; }
+      .sm\:flex-1 { flex: 1 1 0% !important; }
+    }
+    @media (min-width: 768px) {
+      .md\:grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+      .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .md\:flex { display: flex !important; }
+      .md\:block { display: block !important; }
+      .md\:flex-row { flex-direction: row !important; }
+      .md\:items-center { align-items: center !important; }
+      .md\:w-64 { width: 16rem !important; }
+      .md\:border-b-0 { border-bottom-width: 0px !important; }
+      .md\:border-r { border-right-width: 1px !important; }
+      .md\:p-6 { padding: 1.5rem !important; }
+    }
+    @media (min-width: 1024px) {
+      .lg\:flex { display: flex !important; }
+      .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .lg\:px-8 { padding-left: 2rem; padding-right: 2rem; }
+    }
+
+    .rounded { border-radius: 0.25rem; }
+    .rounded-md { border-radius: 0.375rem; }
+    .rounded-lg { border-radius: 0.5rem; }
+    .rounded-xl { border-radius: 0.75rem; }
+    .rounded-2xl { border-radius: 1rem; }
+    .rounded-full { border-radius: 9999px; }
+    .border { border-width: 1px; border-style: solid; }
+    .border-2 { border-width: 2px; border-style: solid; }
+    .border-b { border-bottom-width: 1px; border-bottom-style: solid; }
+    .border-r { border-right-width: 1px; border-right-style: solid; }
+    .border-t { border-top-width: 1px; border-top-style: solid; }
+    .border-l { border-left-width: 1px; border-left-style: solid; }
+
+    .p-1 { padding: 0.25rem; }
+    .p-1\.5 { padding: 0.375rem; }
+    .p-2 { padding: 0.5rem; }
+    .p-2\.5 { padding: 0.625rem; }
+    .p-3 { padding: 0.75rem; }
+    .p-3\.5 { padding: 0.875rem; }
+    .p-4 { padding: 1rem; }
+    .p-5 { padding: 1.25rem; }
+    .p-6 { padding: 1.5rem; }
+    .px-1 { padding-left: 0.25rem; padding-right: 0.25rem; }
+    .px-1\.5 { padding-left: 0.375rem; padding-right: 0.375rem; }
+    .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+    .px-2\.5 { padding-left: 0.625rem; padding-right: 0.625rem; }
+    .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+    .px-3\.5 { padding-left: 0.875rem; padding-right: 0.875rem; }
+    .px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .py-0\.5 { padding-top: 0.125rem; padding-bottom: 0.125rem; }
+    .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+    .py-1\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+    .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+    .py-2\.5 { padding-top: 0.625rem; padding-bottom: 0.625rem; }
+    .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+    .py-3\.5 { padding-top: 0.875rem; padding-bottom: 0.875rem; }
+    .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+
+    .w-full { width: 100%; }
+    .w-3 { width: 0.75rem; }
+    .w-3\.5 { width: 0.875rem; }
+    .w-4 { width: 1rem; }
+    .w-5 { width: 1.25rem; }
+    .w-6 { width: 1.5rem; }
+    .w-7 { width: 1.75rem; }
+    .w-8 { width: 2rem; }
+    .w-9 { width: 2.25rem; }
+    .w-10 { width: 2.5rem; }
+    .w-12 { width: 3rem; }
+    .w-14 { width: 3.5rem; }
+    .h-3 { height: 0.75rem; }
+    .h-3\.5 { height: 0.875rem; }
+    .h-4 { height: 1rem; }
+    .h-5 { height: 1.25rem; }
+    .h-6 { height: 1.5rem; }
+    .h-7 { height: 1.75rem; }
+    .h-8 { height: 2rem; }
+    .h-9 { height: 2.25rem; }
+    .h-10 { height: 2.5rem; }
+    .h-12 { height: 3rem; }
+    .h-14 { height: 3.5rem; }
+    .h-16 { height: 4rem; }
+
+    .min-w-0 { min-width: 0px; }
+    .max-w-7xl { max-width: 80rem; }
+    .max-w-lg { max-width: 32rem; }
+    .max-w-xl { max-width: 36rem; }
+    .max-w-2xl { max-width: 42rem; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .overflow-x-auto { overflow-x: auto; }
+    .overflow-y-auto { overflow-y: auto; }
+    .overflow-hidden { overflow: hidden; }
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .font-medium { font-weight: 500; }
+    .font-semibold { font-weight: 600; }
+    .font-bold { font-weight: 700; }
+    .font-extrabold { font-weight: 800; }
+    .font-black { font-weight: 900; }
+    .uppercase { text-transform: uppercase; }
+    .tracking-tight { letter-spacing: -0.025em; }
+    .tracking-wider { letter-spacing: 0.05em; }
+    .tracking-widest { letter-spacing: 0.1em; }
+
+    .text-\[9px\] { font-size: 9px; line-height: 12px; }
+    .text-\[10px\] { font-size: 10px; line-height: 14px; }
+    .text-\[11px\] { font-size: 11px; line-height: 15px; }
+    .text-xs { font-size: 0.75rem; line-height: 1rem; }
+    .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+    .text-base { font-size: 1rem; line-height: 1.5rem; }
+    .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+    .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+    .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+
+    .relative { position: relative; }
+    .absolute { position: absolute; }
+    .fixed { position: fixed; }
+    .sticky { position: sticky; }
+    .top-0 { top: 0; }
+    .bottom-0 { bottom: 0; }
+    .left-0 { left: 0; }
+    .right-0 { right: 0; }
+    .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+    .z-50 { z-index: 50; }
+
+    .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+    .shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+    .shadow-xs { box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.03); }
+    .transition { transition: all 0.15s ease-in-out; }
+    .transition-all { transition: all 0.15s ease-in-out; }
+    .transition-colors { transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease; }
+    .cursor-pointer { cursor: pointer; }
+    button { cursor: pointer; border: none; font-family: inherit; background-color: transparent; }
+
+    /* SVG Icon styles */
+    svg.lucide-icon, i svg {
+      display: inline-block;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body class="bg-bg-canvas text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- Command Hub Header with Night Shift & Burgundy Pulse -->
+  <header class="bg-gradient-to-r from-brand-navy via-brand-cobalt to-[#4A101C] text-white shadow-md sticky top-0 z-50 transition-colors">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 gap-2">
+        
+        <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-inner relative flex-shrink-0">
+            <i data-lucide="droplet" class="w-5 h-5 sm:w-6 sm:h-6 text-red-400 fill-red-400"></i>
+            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-brand-burgundy border-2 border-brand-navy"></span>
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5 sm:gap-2">
+              <span class="font-extrabold text-lg sm:text-xl tracking-tight text-white">CAELUM</span>
+              <span class="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider px-1.5 sm:px-2 py-0.5 rounded-full bg-accent-yellow/20 text-accent-yellow border border-accent-yellow/30">
+                MAS Active
+              </span>
+              <span class="hidden md:inline text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-200 border border-rose-500/30">
+                Pulse v2.4
+              </span>
+            </div>
+            <p class="hidden md:block text-xs text-blue-200/80 font-medium truncate max-w-xs lg:max-w-none">Centralized Agent Environment for Lifesaving &amp; Urgent Mobility</p>
+          </div>
+        </div>
+
+        <!-- Center Status Telemetry -->
+        <div class="hidden lg:flex items-center gap-6 text-xs text-blue-100">
+          <div class="flex items-center gap-2 bg-black/25 px-3 py-1.5 rounded-xl border border-white/10">
+            <span class="relative flex h-2.5 w-2.5">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            </span>
+            <span class="font-medium text-emerald-300">5 Regional Nodes Live</span>
+          </div>
+          <div class="text-slate-300 font-mono text-[11px]">
+            Last Scan: <span id="last-scan-time" class="text-white font-semibold">22:15:00</span>
+          </div>
+        </div>
+
+        <!-- Right: Clinical Mode & Actions -->
+        <div class="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
+          
+          <!-- Clinical Mode / Daylight Warm Beige Toggle -->
+          <button onclick="toggleClinicalMode()" id="clinical-toggle-btn" class="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold transition-all border bg-white/10 text-blue-100 border-white/15 hover:bg-white/20 cursor-pointer shadow-xs active:scale-95 flex-shrink-0" title="Switch to Clinical Low-Light Mode">
+            <i data-lucide="moon" class="w-3.5 h-3.5 text-blue-200" id="clinical-toggle-icon"></i>
+            <span id="clinical-toggle-label" class="hidden sm:inline text-[11px] font-bold">Clinical</span>
+          </button>
+
+          <!-- Run Scan Button -->
+          <button onclick="triggerScan()" id="run-scan-btn" class="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs font-bold bg-accent-yellow hover:bg-amber-400 text-slate-950 shadow-sm transition active:scale-95 flex-shrink-0">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="scan-icon"></i>
+            <span id="scan-label" class="hidden sm:inline text-[11px] font-bold">Run Scan</span>
+          </button>
+
+          <div class="hidden sm:flex items-center gap-2 pl-2 border-l border-white/15">
+            <div class="w-8 h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white">
+              <i data-lucide="user" class="w-4 h-4"></i>
+            </div>
+            <div class="text-left text-xs hidden md:block">
+              <div class="font-semibold text-white leading-tight">Caren Chemjor</div>
+              <div class="text-[10px] text-blue-200">Lead Transfusion SE</div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container: Column on Mobile/Split-screen, Row on Desktop -->
+  <div class="flex-1 flex flex-col md:flex-row max-w-7xl w-full mx-auto min-w-0">
+    
+    <!-- Responsive Navigation: Horizontal Strip on Mobile/Split, Vertical Sidebar on Desktop -->
+    <aside class="w-full md:w-64 bg-bg-surface border-b md:border-b-0 md:border-r border-border-warm flex flex-col justify-between p-3 sm:p-4 md:min-h-[calc(100vh-4rem)] transition-colors flex-shrink-0">
+      <div class="space-y-3 md:space-y-6">
+        <div>
+          <div class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 px-1 md:px-3 mb-1.5 md:mb-2 flex items-center justify-between">
+            <span>Clinical Operations</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-brand-burgundy"></span>
+          </div>
+          
+          <nav class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-1 gap-1.5 md:space-y-1">
+            <button onclick="setTab('dashboard')" id="nav-dashboard" class="w-full flex items-center justify-between px-2.5 sm:px-3.5 py-2 sm:py-2.5 rounded-xl text-xs font-semibold bg-brand-cobalt text-white border border-brand-cobalt shadow-sm relative overflow-hidden transition-all">
+              <span class="absolute left-0 top-0 bottom-0 w-1 bg-brand-burgundy"></span>
+              <div class="flex items-center gap-1.5 sm:gap-2.5 truncate">
+                <i data-lucide="layout-dashboard" class="w-4 h-4 text-accent-yellow flex-shrink-0"></i>
+                <span class="truncate font-bold text-white">Dashboard</span>
+              </div>
+            </button>
+            <button onclick="setTab('alerts')" id="nav-alerts" class="w-full flex items-center justify-between px-2.5 sm:px-3.5 py-2 sm:py-2.5 rounded-xl text-xs font-semibold nav-inactive border border-border-warm hover:border-brand-burgundy/40 relative overflow-hidden transition-all">
+              <div class="flex items-center gap-1.5 sm:gap-2.5 truncate">
+                <i data-lucide="alert-circle" class="w-4 h-4 text-slate-500 flex-shrink-0"></i>
+                <span class="truncate font-semibold">Alerts</span>
+              </div>
+              <span id="alert-pill" class="text-[10px] px-1.5 py-0.5 rounded-full bg-status-crimson text-white font-bold ml-1 flex-shrink-0">2</span>
+            </button>
+            <button onclick="setTab('approval')" id="nav-approval" class="w-full flex items-center justify-between px-2.5 sm:px-3.5 py-2 sm:py-2.5 rounded-xl text-xs font-semibold nav-inactive border border-border-warm hover:border-brand-burgundy/40 relative overflow-hidden transition-all">
+              <div class="flex items-center gap-1.5 sm:gap-2.5 truncate">
+                <i data-lucide="inbox" class="w-4 h-4 text-slate-500 flex-shrink-0"></i>
+                <span class="truncate font-semibold">Approvals</span>
+              </div>
+              <span id="approval-pill" class="text-[10px] px-1.5 py-0.5 rounded-full bg-status-emerald text-white font-bold ml-1 flex-shrink-0">1 Action</span>
+            </button>
+            <button onclick="setTab('transfers')" id="nav-transfers" class="w-full flex items-center justify-between px-2.5 sm:px-3.5 py-2 sm:py-2.5 rounded-xl text-xs font-semibold nav-inactive border border-border-warm hover:border-brand-burgundy/40 relative overflow-hidden transition-all">
+              <div class="flex items-center gap-1.5 sm:gap-2.5 truncate">
+                <i data-lucide="truck" class="w-4 h-4 text-slate-500 flex-shrink-0"></i>
+                <span class="truncate font-semibold">Transfers</span>
+              </div>
+              <span id="transfers-pill" class="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-burgundy text-white font-bold ml-1 flex-shrink-0">3 Active</span>
+            </button>
+          </nav>
+        </div>
+
+        <div class="hidden md:block space-y-3">
+          <div class="bg-bg-inset border border-border-warm rounded-2xl p-3.5 text-xs">
+            <div class="flex items-center gap-1.5 text-status-emerald font-bold mb-1">
+              <i data-lucide="shield" class="w-4 h-4"></i>
+              <span>Safety Architecture</span>
+            </div>
+            <p class="text-[11px] text-slate-500 leading-relaxed">
+              Deterministic math execution isolates logistics constraints from probabilistic LLM inference. Zero non-verified unit dispatches.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="hidden md:block p-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-xs">
+        <div class="flex items-center gap-1.5 font-bold text-amber-800 mb-1">
+          <i data-lucide="heart-handshake" class="w-4 h-4 text-amber-600"></i>
+          <span>People First, AI Second</span>
+        </div>
+        <p class="text-[10.5px] text-amber-900/80 leading-normal">
+          AI synthesizes policies; human clinical officers retain complete sign-off authority.
+        </p>
+      </div>
+    </aside>
+
+    <!-- Main Stage Content (Takes 100% width on phone & split-screen) -->
+    <main class="flex-1 p-3 sm:p-5 md:p-6 overflow-y-auto w-full min-w-0">
+      
+      <!-- TAB 1: Network Dashboard -->
+      <section id="tab-dashboard" class="space-y-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          <div class="bg-bg-surface border border-border-warm rounded-2xl p-4 shadow-sm">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Monitored Units</div>
+            <div class="text-2xl font-extrabold text-slate-900 mt-1">391 <span class="text-xs font-semibold text-slate-400">Units</span></div>
+            <div class="text-xs text-status-emerald flex items-center gap-1 mt-1 font-medium">
+              <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> 5 Hospitals Connected
+            </div>
+          </div>
+          <div class="bg-bg-surface border border-border-warm rounded-2xl p-4 shadow-sm">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Critical Stockouts</div>
+            <div class="text-2xl font-extrabold text-status-crimson mt-1">1 <span class="text-xs font-semibold text-status-crimson">Facility</span></div>
+            <div class="text-xs text-status-crimson flex items-center gap-1 mt-1 font-medium">
+              <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> Kuresoi (O- &lt; 0.4d cover)
+            </div>
+          </div>
+          <div class="bg-bg-surface border border-border-warm rounded-2xl p-4 shadow-sm">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Active Corridors</div>
+            <div class="text-2xl font-extrabold text-brand-cobalt mt-1">2 <span class="text-xs font-semibold text-slate-400">In-Transit</span></div>
+            <div class="text-xs text-slate-500 flex items-center gap-1 mt-1 font-medium">
+              <i data-lucide="truck" class="w-3.5 h-3.5 text-brand-cobalt"></i> Avg cold-transit: 28 mins
+            </div>
+          </div>
+          <div class="bg-bg-surface border border-border-warm rounded-2xl p-4 shadow-sm">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Verification Engine</div>
+            <div class="text-2xl font-extrabold text-status-emerald mt-1">100%</div>
+            <div class="text-xs text-status-emerald flex items-center gap-1 mt-1 font-medium">
+              <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Verified via Postgres
+            </div>
+          </div>
+        </div>
+
+        <!-- Regional Hospital Topology Card -->
+        <div class="bg-bg-surface border border-border-warm rounded-2xl p-5 shadow-sm space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-border-warm">
+            <div>
+              <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="navigation" class="w-4 h-4 text-brand-cobalt"></i>
+                Regional Hospital Topology &amp; Active Transfer Corridors
+              </h2>
+              <p class="text-xs text-slate-500">South Rift &bull; Central Kenya Health Logistics Matrix</p>
+            </div>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-brand-burgundy/10 text-brand-burgundy border border-brand-burgundy/20">
+              Live Topology Feed
+            </span>
+          </div>
+          <div class="bg-bg-inset p-4 rounded-xl border border-border-warm text-center">
+            <p class="text-xs text-slate-600 mb-2">Active corridor linked from <strong>Nairobi Hospital Hub</strong> to <strong>Kuresoi Sub-County</strong> (28.4 km, 34 mins). 2 Units O- in transit under monitored cold-chain.</p>
+            <button onclick="setTab('approval')" class="px-4 py-2 rounded-xl text-xs font-bold bg-brand-cobalt hover:bg-brand-burgundy text-white transition inline-flex items-center gap-1.5">
+              <span>Review HITL Approval Proposal</span>
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: Shortage Alerts with Task 3 FilterBar -->
+      <section id="tab-alerts" class="space-y-4 hidden">
+        <div class="bg-bg-surface border border-border-warm rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex items-center gap-2.5">
+            <span class="p-2 rounded-xl bg-status-crimson/10 text-status-crimson border border-status-crimson/20">
+              <i data-lucide="alert-circle" class="w-5 h-5"></i>
+            </span>
+            <div>
+              <h1 class="text-lg font-extrabold text-slate-900">Regional Shortage Detection Queue</h1>
+              <p class="text-xs text-slate-500">Holt-Winters Statistical Model &bull; Evaluated Every 60 Minutes</p>
+            </div>
+          </div>
+          <button onclick="triggerScan()" class="px-4 py-2 rounded-xl text-xs font-bold bg-brand-cobalt hover:bg-brand-burgundy text-white transition flex items-center gap-2">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>Scan Network</span>
+          </button>
+        </div>
+
+        <!-- FilterBar for Alerts -->
+        <div class="bg-bg-surface border border-border-warm rounded-2xl p-3 shadow-sm space-y-2.5 text-xs">
+          <div class="flex flex-col sm:flex-row gap-2.5">
+            <input type="text" id="alerts-search" oninput="filterAlerts()" placeholder="Search by facility name or blood type..." class="flex-1 px-3 py-2 rounded-xl border border-border-warm bg-bg-inset text-slate-800 text-xs focus:ring-1 focus:ring-brand-cobalt" />
+            <select id="alerts-blood-filter" onchange="filterAlerts()" class="px-3 py-2 rounded-xl border border-border-warm bg-bg-inset text-slate-800 font-semibold text-xs">
+              <option value="ALL">All Blood Types</option>
+              <option value="O-">O- (Universal)</option>
+              <option value="A+">A+</option>
+              <option value="B+">B+</option>
+            </select>
+            <select id="alerts-urgency-filter" onchange="filterAlerts()" class="px-3 py-2 rounded-xl border border-border-warm bg-bg-inset text-slate-800 font-semibold text-xs">
+              <option value="ALL">All Urgency Levels</option>
+              <option value="CRITICAL">Critical (&lt; 24h)</option>
+              <option value="URGENT">Urgent (&lt; 48h)</option>
+            </select>
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-border-warm/60">
+            <span id="alerts-count-label">Showing 2 of 2 alerts</span>
+            <button onclick="resetAlertFilters()" class="text-brand-burgundy font-bold hover:underline">Reset Filters</button>
+          </div>
+        </div>
+
+        <!-- Alert Items -->
+        <div id="alerts-container" class="space-y-3">
+          <div class="alert-item bg-bg-surface border-l-4 border-l-status-crimson border-y border-r border-border-warm rounded-2xl p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4" data-facility="kuresoi" data-blood="O-" data-urgency="CRITICAL">
+            <div class="flex items-start gap-3.5">
+              <div class="w-14 h-14 rounded-xl bg-status-crimson text-white font-black flex flex-col items-center justify-center flex-shrink-0 animate-pulse">
+                <span class="text-lg leading-none">O-</span>
+                <span class="text-[9px] uppercase tracking-wider mt-0.5">Blood</span>
+              </div>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h2 class="text-sm font-black text-slate-900">Kuresoi Sub-County Hospital</h2>
+                  <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-red-100 text-status-crimson border border-red-300">CRITICAL</span>
+                  <span class="text-[11px] font-mono text-slate-400">ID: #AL-9021</span>
+                </div>
+                <p class="text-xs text-slate-600 mt-1 max-w-xl">Projected stockout within 9.4 hours due to 3 emergency C-sections and traffic corridor trauma.</p>
+                <div class="flex items-center gap-3 mt-2 text-[11px] text-slate-500 font-medium">
+                  <span class="text-status-crimson font-bold flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> Cover: 0.38d</span>
+                  <span>&bull;</span>
+                  <span>Stock: <strong>1 Unit</strong></span>
+                </div>
+              </div>
+            </div>
+            <button onclick="setTab('approval')" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-cobalt hover:bg-brand-burgundy text-white transition flex items-center justify-center gap-1.5">
+              <span>Review Proposal</span>
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+
+          <div class="alert-item bg-bg-surface border-l-4 border-l-accent-yellow border-y border-r border-border-warm rounded-2xl p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4" data-facility="naivasha" data-blood="B+" data-urgency="URGENT">
+            <div class="flex items-start gap-3.5">
+              <div class="w-14 h-14 rounded-xl bg-accent-yellow text-slate-950 font-black flex flex-col items-center justify-center flex-shrink-0">
+                <span class="text-lg leading-none">B+</span>
+                <span class="text-[9px] uppercase tracking-wider mt-0.5">Blood</span>
+              </div>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h2 class="text-sm font-black text-slate-900">Naivasha District Hospital</h2>
+                  <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">URGENT</span>
+                  <span class="text-[11px] font-mono text-slate-400">ID: #AL-9024</span>
+                </div>
+                <p class="text-xs text-slate-600 mt-1 max-w-xl">Stock depleted following holiday weekend elective procedures. Burn rate exceeds reserve threshold.</p>
+                <div class="flex items-center gap-3 mt-2 text-[11px] text-slate-500 font-medium">
+                  <span class="text-amber-800 font-bold flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> Cover: 1.1d</span>
+                  <span>&bull;</span>
+                  <span>Stock: <strong>4 Units</strong></span>
+                </div>
+              </div>
+            </div>
+            <button onclick="setTab('approval')" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-cobalt hover:bg-brand-burgundy text-white transition flex items-center justify-center gap-1.5">
+              <span>Review Proposal</span>
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: Approval Inbox (HITL Card) -->
+      <section id="tab-approval" class="space-y-5 hidden">
+        <div class="flex items-center justify-between pb-3 border-b border-border-warm">
+          <div>
+            <h1 class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+              <i data-lucide="inbox" class="w-5 h-5 text-brand-cobalt"></i>
+              Human-in-the-Loop (HITL) Approval Inbox
+            </h1>
+            <p class="text-xs text-slate-500">Single-Shot Llama 3.1 8B Synthesis &bull; Hard Python Postgres Validation Guard</p>
+          </div>
+          <span class="text-xs font-bold px-3 py-1 rounded-full bg-status-emerald/10 text-status-emerald border border-status-emerald/20 flex items-center gap-1.5">
+            <i data-lucide="shield-check" class="w-4 h-4"></i> 1 Action Pending Sign-off
+          </span>
+        </div>
+
+        <div id="proposal-card" class="bg-bg-surface border border-border-warm rounded-2xl p-6 shadow-sm space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-border-warm gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-xl bg-brand-cobalt/10 border border-brand-cobalt/20 text-brand-cobalt flex items-center justify-center font-bold">
+                <i data-lucide="truck" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <span class="text-xs font-mono font-bold text-slate-500">PROPOSAL #TR-2026-0894</span>
+                <h2 class="text-base font-black text-slate-900 flex items-center gap-2 mt-0.5">
+                  <span>Nairobi Hospital Hub</span>
+                  <i data-lucide="arrow-right" class="w-4 h-4 text-slate-400"></i>
+                  <span>Kuresoi Sub-County</span>
+                </h2>
+              </div>
+            </div>
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-status-emerald/10 border border-status-emerald/30 text-status-emerald text-xs font-bold">
+              <i data-lucide="shield-check" class="w-4 h-4 text-status-emerald"></i>
+              <span>Verified via Postgres</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="bg-bg-inset border border-border-warm p-3 rounded-xl">
+              <span class="text-[10px] font-bold uppercase text-slate-400 block">Est. Transit Duration</span>
+              <div class="text-sm font-extrabold text-slate-900 mt-0.5 flex items-center gap-1">
+                <i data-lucide="clock" class="w-3.5 h-3.5 text-brand-cobalt"></i> 34 mins
+              </div>
+            </div>
+            <div class="bg-bg-inset border border-border-warm p-3 rounded-xl">
+              <span class="text-[10px] font-bold uppercase text-slate-400 block">Corridor Distance</span>
+              <div class="text-sm font-extrabold text-slate-900 mt-0.5 flex items-center gap-1">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-status-crimson"></i> 28.4 km
+              </div>
+            </div>
+            <div class="bg-bg-inset border border-border-warm p-3 rounded-xl">
+              <span class="text-[10px] font-bold uppercase text-slate-400 block">Donor Post-Op</span>
+              <div class="text-sm font-extrabold text-status-emerald mt-0.5">5.2d Safe Cover</div>
+            </div>
+            <div class="bg-bg-inset border border-border-warm p-3 rounded-xl">
+              <span class="text-[10px] font-bold uppercase text-slate-400 block">Recipient Post-Op</span>
+              <div class="text-sm font-extrabold text-brand-cobalt mt-0.5">+2.8d Cover Lift</div>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-amber-500/5 border-l-4 border-l-accent-yellow border border-border-warm space-y-1.5 text-xs">
+            <div class="font-bold text-amber-950 flex items-center gap-1.5">
+              <i data-lucide="sparkles" class="w-4 h-4 text-accent-yellow fill-accent-yellow"></i>
+              Llama 3.1 8B Clinical Orchestrator Rationale
+            </div>
+            <p class="text-slate-700 italic">"Nairobi Hospital Hub possesses 142 units of O- with 5.8 days of cover. Disagreeing with transfer would risk an acute stockout at Kuresoi in under 10 hours. MOH SOP 4.2 compliance certified."</p>
+          </div>
+
+          <div class="pt-2 flex flex-col sm:flex-row items-center gap-3">
+            <button onclick="approveTransferAction()" class="w-full sm:flex-1 py-3.5 px-6 rounded-xl bg-status-emerald hover:bg-emerald-700 text-white font-extrabold text-sm shadow-sm transition flex items-center justify-center gap-2">
+              <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+              <span>Approve Transfer &amp; Dispatch Courier</span>
+            </button>
+            <button onclick="rejectTransferAction()" class="w-full sm:w-auto py-3.5 px-6 rounded-xl bg-red-50 hover:bg-brand-burgundy/10 text-status-crimson hover:text-brand-burgundy font-bold text-sm border border-status-crimson/20 transition flex items-center justify-center gap-2">
+              <i data-lucide="x-circle" class="w-5 h-5"></i>
+              <span>Reject Transfer</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: Transfers (Task 2 Grid Layout & Task 3 FilterBar) -->
+      <section id="tab-transfers" class="space-y-4 hidden">
+        <div class="flex flex-col md:flex-row md:items-center justify-between pb-2 border-b border-border-warm gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-brand-burgundy animate-ping"></span>
+              <h1 class="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+                <i data-lucide="truck" class="w-5 h-5 text-brand-cobalt"></i>
+                Transfer Corridors &amp; Dispatch Fleet
+              </h1>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">4-Stage Clinical Logistics &bull; Deterministic Chain of Custody &bull; Live Cold-Chain Monitoring</p>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <div class="bg-bg-surface border border-border-warm px-3 py-1.5 rounded-xl text-xs flex items-center gap-2 shadow-xs">
+              <i data-lucide="thermometer-snowflake" class="w-4 h-4 text-brand-burgundy"></i>
+              <span class="text-slate-600">Cold Chain:</span>
+              <span class="font-mono font-bold text-status-emerald">3.9°C Safe (2°-6°C)</span>
+            </div>
+            <div class="bg-bg-surface border border-border-warm px-3 py-1.5 rounded-xl text-xs flex items-center gap-2 shadow-xs">
+              <i data-lucide="shield-check" class="w-4 h-4 text-status-emerald"></i>
+              <span class="text-slate-600">Postgres Ledger:</span>
+              <span class="font-bold text-slate-900">Synchronized</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Task 3: Interactive FilterBar for Transfers with View Switchers -->
+        <div class="bg-bg-surface border border-border-warm rounded-2xl p-3.5 shadow-sm space-y-3 text-xs transition-colors">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+            <div class="relative flex-1">
+              <input type="text" id="transfers-search" oninput="filterTransfers()" placeholder="Search by hospital name, transfer ID, driver, or unit bag #..." class="w-full pl-9 pr-8 py-2 rounded-xl text-xs bg-bg-inset border border-border-warm text-slate-900 focus:ring-2 focus:ring-brand-cobalt focus:outline-none" />
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none"></i>
+            </div>
+            
+            <!-- View Mode Switcher: Grid vs Table vs Pipeline -->
+            <div class="flex items-center gap-1 bg-bg-inset p-1 rounded-xl border border-border-warm">
+              <button onclick="setTransferView('grid')" id="btn-view-grid" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-cobalt text-white shadow-xs relative">
+                <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+                <span>Grid Cards</span>
+                <span class="absolute bottom-0 left-2 right-2 h-0.5 bg-brand-burgundy rounded-full"></span>
+              </button>
+              <button onclick="setTransferView('table')" id="btn-view-table" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900">
+                <i data-lucide="table" class="w-3.5 h-3.5"></i>
+                <span>Compact Table</span>
+              </button>
+              <button onclick="setTransferView('pipeline')" id="btn-view-pipeline" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900">
+                <i data-lucide="columns" class="w-3.5 h-3.5"></i>
+                <span>4-Stage Pipeline</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-border-warm/60">
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="flex items-center gap-1">
+                <span class="text-[11px] font-bold text-slate-400 uppercase">Blood:</span>
+                <select id="transfers-blood-filter" onchange="filterTransfers()" class="py-1 px-2 rounded-lg text-xs font-semibold bg-bg-inset border border-border-warm text-slate-800">
+                  <option value="ALL">All Types</option>
+                  <option value="O-">O-</option>
+                  <option value="O+">O+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="AB+">AB+</option>
+                </select>
+              </div>
+
+              <div class="flex items-center gap-1">
+                <span class="text-[11px] font-bold text-slate-400 uppercase">Status:</span>
+                <select id="transfers-stage-filter" onchange="filterTransfers()" class="py-1 px-2 rounded-lg text-xs font-semibold bg-bg-inset border border-border-warm text-slate-800">
+                  <option value="ALL">All Stages</option>
+                  <option value="APPROVED">1. Approved</option>
+                  <option value="COURIER_ASSIGNED">2. Courier Assigned</option>
+                  <option value="IN_TRANSIT">3. In Transit</option>
+                  <option value="DELIVERED">4. Delivered</option>
+                </select>
+              </div>
+
+              <button onclick="resetTransferFilters()" class="px-2 py-0.5 rounded text-xs font-bold text-brand-burgundy bg-brand-burgundy/10 hover:bg-brand-burgundy/20 border border-brand-burgundy/20">
+                Reset
+              </button>
+            </div>
+
+            <div class="text-[11px] text-slate-500">
+              Showing <strong id="transfers-count-num" class="text-slate-900">5</strong> of 5 records
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW MODE 1: High-Density CSS Grid Layout (Task 2: Above the fold) -->
+        <div id="view-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          
+          <!-- Card 1: Approved -->
+          <div class="transfer-grid-card bg-bg-surface border border-border-warm rounded-2xl p-4 shadow-sm hover:border-brand-burgundy/40 transition flex flex-col justify-between space-y-3 relative overflow-hidden group" data-id="TR-2026-0414" data-donor="Mater Hospital" data-recipient="Kenyatta National" data-blood="O-" data-stage="APPROVED">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-cobalt via-brand-burgundy to-blue-600 opacity-60 group-hover:opacity-100 transition-opacity"></div>
+            <div>
+              <div class="flex items-start justify-between gap-2 pt-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-mono font-bold text-xs px-2 py-0.5 rounded bg-bg-inset border border-border-warm text-slate-800">#TR-2026-0414</span>
+                  <span class="px-2 py-0.5 rounded-md font-black text-xs bg-red-100 text-status-crimson border border-red-200">4 Units O-</span>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">Approved</span>
+              </div>
+              <div class="mt-3">
+                <div class="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
+                  <span>Mater Hospital</span>
+                  <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-slate-400"></i>
+                  <span>Kenyatta National</span>
+                </div>
+                <div class="text-[11px] text-slate-500 mt-0.5">18.2 km &bull; ETA: 24 mins &bull; Cold Box CB-08</div>
+              </div>
+              <div class="mt-2 bg-bg-inset border border-border-warm rounded-xl p-2.5 text-[11px] text-slate-600 flex justify-between">
+                <span>Manifest: <em>Pending Driver</em></span>
+                <span class="text-amber-700 font-bold">Ready for Pickup</span>
+              </div>
+            </div>
+            <div class="pt-2 border-t border-border-warm/60">
+              <button onclick="openAssignModal('TR-2026-0414', 'Mater Hospital', 'Kenyatta National', '4 Units O-')" class="w-full py-2 px-3 rounded-xl bg-brand-cobalt hover:bg-brand-burgundy text-white font-bold text-xs shadow-xs transition flex items-center justify-center gap-1.5">
+                <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+                <span>Assign Courier</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Card 2: Courier Assigned -->
+          <div class="transfer-grid-card bg-bg-surface border border-border-warm rounded-2xl p-4 shadow-sm hover:border-brand-burgundy/40 transition flex flex-col justify-between space-y-3 relative overflow-hidden group" data-id="TR-2026-0415" data-donor="Nairobi Hospital" data-recipient="Mbagathi Hospital" data-blood="B+" data-stage="COURIER_ASSIGNED">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-cobalt via-brand-burgundy to-blue-600 opacity-60 group-hover:opacity-100 transition-opacity"></div>
+            <div>
+              <div class="flex items-start justify-between gap-2 pt-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-mono font-bold text-xs px-2 py-0.5 rounded bg-bg-inset border border-border-warm text-slate-800">#TR-2026-0415</span>
+                  <span class="px-2 py-0.5 rounded-md font-black text-xs bg-blue-100 text-brand-cobalt border border-blue-200">2 Units B+</span>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-brand-cobalt border border-blue-300">Courier Assigned</span>
+              </div>
+              <div class="mt-3">
+                <div class="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
+                  <span>Nairobi Hospital</span>
+                  <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-slate-400"></i>
+                  <span>Mbagathi Hospital</span>
+                </div>
+                <div class="text-[11px] text-slate-500 mt-0.5">11.4 km &bull; ETA: 19 mins</div>
+              </div>
+              <div class="mt-2 bg-bg-inset border border-border-warm rounded-xl p-2.5 text-[11px] flex justify-between">
+                <span class="font-semibold text-slate-800">Driver: Peter Kamau</span>
+                <span class="font-mono font-bold text-brand-cobalt">KDA 320P</span>
+              </div>
+            </div>
+            <div class="pt-2 border-t border-border-warm/60">
+              <button onclick="quickConfirmPickup('TR-2026-0415')" class="w-full py-2 px-3 rounded-xl bg-status-emerald hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition flex items-center justify-center gap-1.5">
+                <i data-lucide="truck" class="w-3.5 h-3.5"></i>
+                <span>Confirm Pickup &amp; Dispatch</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Card 3: In Transit -->
+          <div class="transfer-grid-card bg-bg-surface border border-brand-cobalt/30 rounded-2xl p-4 shadow-sm hover:border-brand-burgundy/40 transition flex flex-col justify-between space-y-3 relative overflow-hidden group" data-id="TR-2026-0413" data-donor="Kenyatta National" data-recipient="Mama Lucy Kibaki" data-blood="O+" data-stage="IN_TRANSIT">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-cobalt via-brand-burgundy to-blue-600 opacity-100 transition-opacity"></div>
+            <div>
+              <div class="flex items-start justify-between gap-2 pt-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-mono font-bold text-xs px-2 py-0.5 rounded bg-bg-inset border border-border-warm text-slate-800">#TR-2026-0413</span>
+                  <span class="px-2 py-0.5 rounded-md font-black text-xs bg-amber-100 text-amber-900 border border-amber-300">3 Units O+</span>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-300 animate-pulse">In Transit</span>
+              </div>
+              <div class="mt-3">
+                <div class="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
+                  <span>Kenyatta National</span>
+                  <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-slate-400"></i>
+                  <span>Mama Lucy Kibaki</span>
+                </div>
+                <div class="text-[11px] text-slate-500 mt-0.5 flex justify-between">
+                  <span>Driver: Daniel Ochieng</span>
+                  <span class="font-mono text-brand-cobalt font-bold">KDD 712L</span>
+                </div>
+              </div>
+              <div class="mt-2 bg-emerald-50/60 border border-emerald-200/70 p-2.5 rounded-xl text-xs space-y-1">
+                <div class="flex items-center justify-between text-[10px]">
+                  <span class="font-bold text-emerald-800 flex items-center gap-1"><i data-lucide="thermometer" class="w-3 h-3"></i> 4.0°C (Safe)</span>
+                  <span class="text-slate-500">68% &bull; 14m remaining</span>
+                </div>
+                <div class="w-full bg-emerald-200 h-1.5 rounded-full overflow-hidden">
+                  <div class="bg-status-emerald h-full rounded-full" style="width: 68%;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="pt-2 border-t border-border-warm/60">
+              <button onclick="quickConfirmHandover('TR-2026-0413')" class="w-full py-2 px-3 rounded-xl bg-brand-cobalt hover:bg-brand-burgundy text-white font-bold text-xs shadow-xs transition flex items-center justify-center gap-1.5">
+                <i data-lucide="check-check" class="w-3.5 h-3.5"></i>
+                <span>Confirm Handover &amp; Custody</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Card 4: Delivered -->
+          <div class="transfer-grid-card bg-bg-surface border border-border-warm rounded-2xl p-4 shadow-sm opacity-95 flex flex-col justify-between space-y-3" data-id="TR-2026-0412" data-donor="Mama Lucy" data-recipient="Pumwani Maternity" data-blood="A-" data-stage="DELIVERED">
+            <div>
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-mono font-bold text-xs px-2 py-0.5 rounded bg-bg-inset border border-border-warm text-slate-800">#TR-2026-0412</span>
+                  <span class="px-2 py-0.5 rounded-md font-black text-xs bg-emerald-100 text-status-emerald border border-emerald-300">2 Units A-</span>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-status-emerald border border-emerald-300">Delivered</span>
+              </div>
+              <div class="mt-3">
+                <div class="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
+                  <span>Mama Lucy</span>
+                  <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-slate-400"></i>
+                  <span>Pumwani Maternity</span>
+                </div>
+                <div class="text-[11px] text-slate-500 mt-0.5">Delivered Today &bull; 10:45 AM</div>
+              </div>
+              <div class="mt-2 bg-bg-inset p-2 rounded-xl border border-border-warm text-[10px] text-slate-600 flex justify-between">
+                <span>Sign-off: Dr. Wanjiru</span>
+                <span class="text-status-emerald font-bold flex items-center gap-1"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Verified</span>
+              </div>
+            </div>
+            <div class="pt-2 border-t border-border-warm/60 text-center text-xs font-bold text-status-emerald flex items-center justify-center gap-1">
+              <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Ledger Signed
+            </div>
+          </div>
+
+          <!-- Card 5: Delivered -->
+          <div class="transfer-grid-card bg-bg-surface border border-border-warm rounded-2xl p-4 shadow-sm opacity-95 flex flex-col justify-between space-y-3" data-id="TR-2026-0409" data-donor="Mater Hospital" data-recipient="Nairobi South" data-blood="AB+" data-stage="DELIVERED">
+            <div>
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-mono font-bold text-xs px-2 py-0.5 rounded bg-bg-inset border border-border-warm text-slate-800">#TR-2026-0409</span>
+                  <span class="px-2 py-0.5 rounded-md font-black text-xs bg-emerald-100 text-status-emerald border border-emerald-300">1 Unit AB+</span>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-status-emerald border border-emerald-300">Delivered</span>
+              </div>
+              <div class="mt-3">
+                <div class="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
+                  <span>Mater Hospital</span>
+                  <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-slate-400"></i>
+                  <span>Nairobi South</span>
+                </div>
+                <div class="text-[11px] text-slate-500 mt-0.5">Delivered Today &bull; 09:15 AM</div>
+              </div>
+              <div class="mt-2 bg-bg-inset p-2 rounded-xl border border-border-warm text-[10px] text-slate-600 flex justify-between">
+                <span>Sign-off: Nurse Otieno</span>
+                <span class="text-status-emerald font-bold flex items-center gap-1"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Verified</span>
+              </div>
+            </div>
+            <div class="pt-2 border-t border-border-warm/60 text-center text-xs font-bold text-status-emerald flex items-center justify-center gap-1">
+              <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Ledger Signed
+            </div>
+          </div>
+
+        </div>
+
+        <!-- VIEW MODE 2: Compact Paginated Table (Task 2) -->
+        <div id="view-table-container" class="bg-bg-surface border border-border-warm rounded-2xl overflow-hidden shadow-sm hidden">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-bg-inset border-b border-border-warm text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                <th class="py-3 px-4">Transfer ID</th>
+                <th class="py-3 px-4">Corridor Route</th>
+                <th class="py-3 px-4">Blood Group</th>
+                <th class="py-3 px-4">Cold-Chain</th>
+                <th class="py-3 px-4">Courier</th>
+                <th class="py-3 px-4">Stage</th>
+                <th class="py-3 px-4 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="table-rows" class="divide-y divide-border-warm">
+              <!-- Rendered via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- VIEW MODE 3: 4-Stage Horizontal Pipeline -->
+        <div id="view-pipeline-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start hidden">
+          <!-- 1. Approved -->
+          <div class="bg-bg-inset/70 border border-border-warm rounded-2xl p-3.5 space-y-3 min-h-[460px] flex flex-col">
+            <div class="flex items-center justify-between border-b border-border-warm pb-2">
+              <span class="text-xs font-black uppercase text-slate-800">1. Approved</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold">1 Pending</span>
+            </div>
+            <div id="pipe-col-approved" class="space-y-2.5 flex-1"></div>
+          </div>
+          <!-- 2. Courier Assigned -->
+          <div class="bg-bg-inset/70 border border-border-warm rounded-2xl p-3.5 space-y-3 min-h-[460px] flex flex-col">
+            <div class="flex items-center justify-between border-b border-border-warm pb-2">
+              <span class="text-xs font-black uppercase text-slate-800">2. Courier Assigned</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-brand-cobalt font-bold">1 Dispatched</span>
+            </div>
+            <div id="pipe-col-courier" class="space-y-2.5 flex-1"></div>
+          </div>
+          <!-- 3. In Transit -->
+          <div class="bg-bg-inset/70 border border-border-warm rounded-2xl p-3.5 space-y-3 min-h-[460px] flex flex-col">
+            <div class="flex items-center justify-between border-b border-border-warm pb-2">
+              <span class="text-xs font-black uppercase text-slate-800">3. In Transit</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 font-bold">1 On Route</span>
+            </div>
+            <div id="pipe-col-transit" class="space-y-2.5 flex-1"></div>
+          </div>
+          <!-- 4. Delivered -->
+          <div class="bg-bg-inset/70 border border-border-warm rounded-2xl p-3.5 space-y-3 min-h-[460px] flex flex-col">
+            <div class="flex items-center justify-between border-b border-border-warm pb-2">
+              <span class="text-xs font-black uppercase text-slate-800">4. Delivered</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-status-emerald font-bold">2 Complete</span>
+            </div>
+            <div id="pipe-col-delivered" class="space-y-2.5 flex-1"></div>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Assign Courier Modal Dialog -->
+  <div id="assign-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-bg-surface border border-border-warm rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-scale-in">
+      <div class="flex items-center justify-between border-b border-border-warm pb-3">
+        <div>
+          <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+            <i data-lucide="truck" class="w-5 h-5 text-brand-cobalt"></i>
+            Assign Courier &amp; Cold Box
+          </h3>
+          <p class="text-xs text-slate-500" id="modal-transfer-id">Transfer #TR-2026-0414</p>
+        </div>
+        <button onclick="closeAssignModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Select Certified Emergency Driver</label>
+          <select id="modal-driver" class="w-full p-2.5 rounded-xl border border-border-warm bg-bg-inset text-slate-800 font-medium focus:ring-2 focus:ring-brand-cobalt">
+            <option value="Mary Mwangi (KCE 901M)">Mary Mwangi &bull; Ambulance Fleet 03 (KCE 901M)</option>
+            <option value="Peter Kamau (KDA 320P)">Peter Kamau &bull; Rapid Motor Carrier (KDA 320P)</option>
+            <option value="Daniel Ochieng (KDD 712L)">Daniel Ochieng &bull; Emergency Van (KDD 712L)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Cold Box Sensor Tag</label>
+          <input type="text" id="modal-coldbox" value="CB-08 (Calibrated 3.8°C)" class="w-full p-2.5 rounded-xl border border-border-warm bg-bg-inset text-slate-800 font-mono text-xs" />
+        </div>
+
+        <div class="bg-amber-500/10 border border-amber-500/20 p-3 rounded-xl text-[11px] text-amber-900 space-y-1">
+          <div class="font-bold flex items-center gap-1 text-amber-800">
+            <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+            Chain-of-Custody Compliance
+          </div>
+          <p>
+            Driver sign-off initiates cryptographic transfer manifest. Temperature deviations exceeding 6°C automatically flag clinical supervisor.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-border-warm">
+        <button onclick="closeAssignModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-bg-inset">
+          Cancel
+        </button>
+        <button onclick="submitAssignCourier()" class="px-4 py-2 rounded-xl text-xs font-bold bg-brand-cobalt hover:bg-brand-burgundy text-white shadow-xs flex items-center gap-1.5 transition">
+          <i data-lucide="file-check" class="w-4 h-4"></i>
+          Confirm Manifest &amp; Assign
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ICON_SVGS = {
+      'droplet': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>',
+      'layout-dashboard': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>',
+      'alert-circle': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>',
+      'inbox': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>',
+      'truck': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18.5" r="2.5"/><circle cx="7" cy="18.5" r="2.5"/></svg>',
+      'shield': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>',
+      'shield-check': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>',
+      'heart-handshake': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>',
+      'check-circle-2': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>',
+      'alert-triangle': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+      'navigation': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>',
+      'arrow-right': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>',
+      'refresh-cw': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>',
+      'moon': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>',
+      'sun': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>',
+      'user': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+      'user-plus': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="11" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>',
+      'table': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/></svg>',
+      'columns': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 3v18"/></svg>',
+      'layout-grid': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>',
+      'thermometer': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg>',
+      'check-check': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/></svg>',
+      'check': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+      'x': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
+      'file-check': '<svg class="lucide-icon" viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m9 15 2 2 4-4"/></svg>'
+    };
+
+    function safeRenderIcons() {
+      try {
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+          lucide.createIcons();
+        }
+      } catch (e) {}
+
+      document.querySelectorAll('i[data-lucide]').forEach(el => {
+        const name = el.getAttribute('data-lucide');
+        if (ICON_SVGS[name] && el.innerHTML.trim() === '') {
+          el.innerHTML = ICON_SVGS[name];
+        }
+      });
+    }
+
+    // Clinical Low-Light Mode vs Warm Beige Daylight Mode
+    let isClinicalModeActive = false;
+
+    function applyClinicalMode(enableClinical) {
+      isClinicalModeActive = enableClinical;
+      const html = document.documentElement;
+      const body = document.body;
+      const btn = document.getElementById('clinical-toggle-btn');
+      const label = document.getElementById('clinical-toggle-label');
+
+      if (isClinicalModeActive) {
+        html.classList.add('dark', 'clinical-mode');
+        body.classList.add('dark', 'clinical-mode');
+        if (label) label.innerText = 'Daylight';
+        if (btn) {
+          btn.className = 'flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold transition-all border bg-amber-500/20 text-amber-200 border-amber-400/30 hover:bg-amber-500/30 cursor-pointer shadow-xs active:scale-95 flex-shrink-0';
+          btn.innerHTML = '<i data-lucide="sun" class="w-3.5 h-3.5 text-accent-yellow" id="clinical-toggle-icon"></i><span id="clinical-toggle-label" class="hidden sm:inline text-[11px] font-bold">Daylight</span>';
+          btn.title = 'Return to Warm Beige Daylight Mode';
+        }
+        localStorage.setItem('caelum_theme', 'clinical');
+      } else {
+        html.classList.remove('dark', 'clinical-mode');
+        body.classList.remove('dark', 'clinical-mode');
+        if (label) label.innerText = 'Clinical';
+        if (btn) {
+          btn.className = 'flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold transition-all border bg-white/10 text-blue-100 border-white/15 hover:bg-white/20 cursor-pointer shadow-xs active:scale-95 flex-shrink-0';
+          btn.innerHTML = '<i data-lucide="moon" class="w-3.5 h-3.5 text-blue-200" id="clinical-toggle-icon"></i><span id="clinical-toggle-label" class="hidden sm:inline text-[11px] font-bold">Clinical</span>';
+          btn.title = 'Switch to Clinical Low-Light Mode';
+        }
+        localStorage.setItem('caelum_theme', 'light');
+      }
+      safeRenderIcons();
+    }
+
+    function toggleClinicalMode() {
+      const isCurrentlyClinical = document.documentElement.classList.contains('dark') || 
+                                 document.documentElement.classList.contains('clinical-mode') || 
+                                 document.body.classList.contains('dark') ||
+                                 document.body.classList.contains('clinical-mode');
+      applyClinicalMode(!isCurrentlyClinical);
+    }
+
+    // Default ALWAYS to Warm Beige Light Mode (#F6F3ED) unless user explicitly saved 'clinical'
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('caelum_theme');
+      if (savedTheme === 'clinical') {
+        applyClinicalMode(true);
+      } else {
+        applyClinicalMode(false);
+      }
+      safeRenderIcons();
+    });
+
+    // Tab Navigation
+    function setTab(tabId) {
+      const tabs = ['dashboard', 'alerts', 'approval', 'transfers'];
+      tabs.forEach(t => {
+        const sec = document.getElementById('tab-' + t);
+        const nav = document.getElementById('nav-' + t);
+        if (t === tabId) {
+          sec.classList.remove('hidden');
+          nav.className = "w-full flex items-center justify-between px-2.5 sm:px-3.5 py-2 sm:py-2.5 rounded-xl text-xs font-semibold bg-brand-cobalt text-white border border-brand-cobalt shadow-sm relative overflow-hidden transition-all";
+          nav.classList.remove('nav-inactive');
+          const titleSpan = nav.querySelector('span.truncate');
+          if (titleSpan) titleSpan.className = "truncate font-bold text-white";
+        } else {
+          sec.classList.add('hidden');
+          nav.className = "w-full flex items-center justify-between px-2.5 sm:px-3.5 py-2 sm:py-2.5 rounded-xl text-xs font-semibold nav-inactive border border-border-warm hover:border-brand-burgundy/40 relative overflow-hidden transition-all";
+          nav.classList.add('nav-inactive');
+          const titleSpan = nav.querySelector('span.truncate');
+          if (titleSpan) titleSpan.className = "truncate font-semibold";
+        }
+      });
+      safeRenderIcons();
+    }
+
+    // View Switching for Transfers (Grid vs Table vs Pipeline)
+    let currentTransferView = 'grid';
+    function setTransferView(mode) {
+      currentTransferView = mode;
+      const modes = ['grid', 'table', 'pipeline'];
+      modes.forEach(m => {
+        const cont = document.getElementById('view-' + m + '-container');
+        const btn = document.getElementById('btn-view-' + m);
+        if (m === mode) {
+          cont.classList.remove('hidden');
+          btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-cobalt text-white shadow-xs relative';
+          btn.innerHTML = `<i data-lucide="${m === 'grid' ? 'layout-grid' : m === 'table' ? 'table' : 'columns'}" class="w-3.5 h-3.5"></i><span>${m === 'grid' ? 'Grid Cards' : m === 'table' ? 'Compact Table' : '4-Stage Pipeline'}</span><span class="absolute bottom-0 left-2 right-2 h-0.5 bg-brand-burgundy rounded-full"></span>`;
+        } else {
+          cont.classList.add('hidden');
+          btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900';
+          btn.innerHTML = `<i data-lucide="${m === 'grid' ? 'layout-grid' : m === 'table' ? 'table' : 'columns'}" class="w-3.5 h-3.5"></i><span>${m === 'grid' ? 'Grid Cards' : m === 'table' ? 'Compact Table' : '4-Stage Pipeline'}</span>`;
+        }
+      });
+      if (mode === 'table') renderTableRows();
+      if (mode === 'pipeline') renderPipelineRows();
+      safeRenderIcons();
+    }
+
+    // Task 3: Interactive Filter for Transfers
+    function filterTransfers() {
+      const q = document.getElementById('transfers-search').value.toLowerCase();
+      const blood = document.getElementById('transfers-blood-filter').value;
+      const stage = document.getElementById('transfers-stage-filter').value;
+      
+      const cards = document.querySelectorAll('.transfer-grid-card');
+      let visible = 0;
+      cards.forEach(c => {
+        const matchesQ = !q || c.innerText.toLowerCase().includes(q) || c.dataset.id.toLowerCase().includes(q);
+        const matchesBlood = blood === 'ALL' || c.dataset.blood === blood;
+        const matchesStage = stage === 'ALL' || c.dataset.stage === stage;
+
+        if (matchesQ && matchesBlood && matchesStage) {
+          c.classList.remove('hidden');
+          visible++;
+        } else {
+          c.classList.add('hidden');
+        }
+      });
+
+      document.getElementById('transfers-count-num').innerText = visible;
+    }
+
+    function resetTransferFilters() {
+      document.getElementById('transfers-search').value = '';
+      document.getElementById('transfers-blood-filter').value = 'ALL';
+      document.getElementById('transfers-stage-filter').value = 'ALL';
+      filterTransfers();
+    }
+
+    // Task 3: Interactive Filter for Shortage Alerts
+    function filterAlerts() {
+      const q = document.getElementById('alerts-search').value.toLowerCase();
+      const blood = document.getElementById('alerts-blood-filter').value;
+      const urgency = document.getElementById('alerts-urgency-filter').value;
+
+      const items = document.querySelectorAll('.alert-item');
+      let visible = 0;
+      items.forEach(it => {
+        const matchesQ = !q || it.innerText.toLowerCase().includes(q);
+        const matchesBlood = blood === 'ALL' || it.dataset.blood === blood;
+        const matchesUrgency = urgency === 'ALL' || it.dataset.urgency === urgency;
+
+        if (matchesQ && matchesBlood && matchesUrgency) {
+          it.classList.remove('hidden');
+          visible++;
+        } else {
+          it.classList.add('hidden');
+        }
+      });
+
+      document.getElementById('alerts-count-label').innerText = `Showing ${visible} of ${items.length} alerts`;
+    }
+
+    function resetAlertFilters() {
+      document.getElementById('alerts-search').value = '';
+      document.getElementById('alerts-blood-filter').value = 'ALL';
+      document.getElementById('alerts-urgency-filter').value = 'ALL';
+      filterAlerts();
+    }
+
+    // Render Compact Table View
+    function renderTableRows() {
+      const tbody = document.getElementById('table-rows');
+      const cards = document.querySelectorAll('.transfer-grid-card');
+      let html = '';
+      cards.forEach(c => {
+        if (!c.classList.contains('hidden')) {
+          const id = c.dataset.id;
+          const donor = c.dataset.donor;
+          const recipient = c.dataset.recipient;
+          const blood = c.dataset.blood;
+          const stage = c.dataset.stage;
+
+          html += `
+            <tr class="hover:bg-bg-inset/60 transition-colors">
+              <td class="py-3 px-4 font-mono font-bold text-slate-900">#${id}</td>
+              <td class="py-3 px-4 font-semibold">
+                <span class="text-brand-cobalt">${donor}</span> &rarr; <span>${recipient}</span>
+              </td>
+              <td class="py-3 px-4"><span class="font-black text-xs px-2 py-0.5 rounded bg-blue-100 text-brand-cobalt">${blood}</span></td>
+              <td class="py-3 px-4 font-mono font-bold text-status-emerald">3.9°C Safe</td>
+              <td class="py-3 px-4 text-slate-600">Standard Carrier</td>
+              <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">${stage}</span></td>
+              <td class="py-3 px-4 text-right">
+                <button onclick="alert('Action triggered for #${id}')" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-brand-cobalt hover:bg-brand-burgundy text-white transition">Manage</button>
+              </td>
+            </tr>
+          `;
+        }
+      });
+      tbody.innerHTML = html;
+    }
+
+    function renderPipelineRows() {
+      const appCol = document.getElementById('pipe-col-approved');
+      const courCol = document.getElementById('pipe-col-courier');
+      const transCol = document.getElementById('pipe-col-transit');
+      const delCol = document.getElementById('pipe-col-delivered');
+
+      appCol.innerHTML = '';
+      courCol.innerHTML = '';
+      transCol.innerHTML = '';
+      delCol.innerHTML = '';
+
+      const cards = document.querySelectorAll('.transfer-grid-card');
+      cards.forEach(c => {
+        const clone = c.cloneNode(true);
+        clone.className = "bg-bg-surface border border-border-warm rounded-xl p-3 shadow-sm space-y-2 text-xs";
+        if (c.dataset.stage === 'APPROVED') appCol.appendChild(clone);
+        if (c.dataset.stage === 'COURIER_ASSIGNED') courCol.appendChild(clone);
+        if (c.dataset.stage === 'IN_TRANSIT') transCol.appendChild(clone);
+        if (c.dataset.stage === 'DELIVERED') delCol.appendChild(clone);
+      });
+      safeRenderIcons();
+    }
+
+    // Courier Assignment Modal
+    let modalId = '';
+    function openAssignModal(id, donor, recipient, units) {
+      modalId = id;
+      document.getElementById('modal-transfer-id').innerText = `Transfer #${id} • ${donor} to ${recipient}`;
+      document.getElementById('assign-modal').classList.remove('hidden');
+      safeRenderIcons();
+    }
+
+    function closeAssignModal() {
+      document.getElementById('assign-modal').classList.add('hidden');
+    }
+
+    function submitAssignCourier() {
+      closeAssignModal();
+      alert(`Manifest generated for #${modalId}. Courier assigned to transport corridor.`);
+      quickConfirmPickup(modalId);
+    }
+
+    function quickConfirmPickup(id) {
+      const card = document.querySelector(`.transfer-grid-card[data-id="${id}"]`);
+      if (card) {
+        card.dataset.stage = 'IN_TRANSIT';
+        card.querySelector('.bg-amber-100, .bg-blue-100').className = 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-300 animate-pulse';
+        card.querySelector('.bg-indigo-100').innerText = 'In Transit';
+        card.querySelector('button').outerHTML = `
+          <button onclick="quickConfirmHandover('${id}')" class="w-full py-2 px-3 rounded-xl bg-brand-cobalt hover:bg-brand-burgundy text-white font-bold text-xs shadow-xs transition flex items-center justify-center gap-1.5">
+            <i data-lucide="check-check" class="w-3.5 h-3.5"></i>
+            <span>Confirm Handover &amp; Custody</span>
+          </button>
+        `;
+        safeRenderIcons();
+      }
+    }
+
+    function quickConfirmHandover(id) {
+      const card = document.querySelector(`.transfer-grid-card[data-id="${id}"]`);
+      if (card) {
+        card.dataset.stage = 'DELIVERED';
+        card.querySelector('.bg-indigo-100').className = 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-status-emerald border border-emerald-300';
+        card.querySelector('.bg-emerald-100').innerText = 'Delivered';
+        card.querySelector('button').outerHTML = `
+          <div class="text-center text-xs font-bold text-status-emerald flex items-center justify-center gap-1">
+            <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Ledger Signed &amp; Safe
+          </div>
+        `;
+        safeRenderIcons();
+      }
+    }
+
+    function triggerScan() {
+      const icon = document.getElementById('scan-icon');
+      const label = document.getElementById('scan-label');
+      icon.classList.add('animate-spin');
+      label.innerText = 'Evaluating Fleet...';
+      setTimeout(() => {
+        icon.classList.remove('animate-spin');
+        label.innerText = 'Run Scan';
+        alert('Multi-Agent Scan Complete: 5 nodes audited. Optimal corridor verified.');
+      }, 1000);
+    }
+
+    function approveTransferAction() {
+      document.getElementById('proposal-card').innerHTML = `
+        <div class="p-6 text-center space-y-2">
+          <div class="w-12 h-12 rounded-full bg-emerald-100 text-status-emerald flex items-center justify-center mx-auto"><i data-lucide="check" class="w-6 h-6"></i></div>
+          <h3 class="text-sm font-bold text-slate-900">Transfer #TR-2026-0894 Approved!</h3>
+          <p class="text-xs text-slate-500">Manifest dispatched to Emergency Courier. Stock reservation confirmed in Postgres.</p>
+        </div>
+      `;
+      document.getElementById('approval-pill').innerText = '0 Action';
+      document.getElementById('approval-pill').className = 'text-[10px] px-2 py-0.5 rounded-full bg-slate-200 text-slate-600';
+      safeRenderIcons();
+      setTimeout(() => setTab('transfers'), 700);
+    }
+
+    function rejectTransferAction() {
+      if (confirm('Confirm rejection of transfer recommendation?')) {
+        document.getElementById('proposal-card').classList.add('hidden');
+        document.getElementById('approval-pill').innerText = '0 Action';
+        document.getElementById('approval-pill').className = 'text-[10px] px-2 py-0.5 rounded-full bg-slate-200 text-slate-600';
+      }
+    }
+  </script>
+</body>
+</html>
