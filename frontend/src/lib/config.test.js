@@ -20,4 +20,10 @@ describe('config', () => {
     expect(readConfig({ VITE_DEMO_MODE: '1' }).demoMode).toBe(false);
     expect(readConfig({}).demoMode).toBe(false);
   });
+
+  it('gives the same base URL for the Render origin with or without /api/v1', () => {
+    for (const v of ['https://caelum-api.onrender.com', 'https://caelum-api.onrender.com/', 'https://caelum-api.onrender.com/api/v1', 'https://caelum-api.onrender.com/api/v1/']) {
+      expect(readConfig({ VITE_API_BASE_URL: v }).apiBaseUrl).toBe('https://caelum-api.onrender.com/api/v1');
+    }
+  });
 });
