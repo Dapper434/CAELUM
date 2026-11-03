@@ -4,6 +4,7 @@ import { readConfig, resolveApiOrigin } from './config';
 describe('config', () => {
   it('uses VITE_API_BASE_URL and strips a trailing /api/v1', () => {
     expect(resolveApiOrigin({ VITE_API_BASE_URL: 'https://api.example.org/api/v1/' })).toBe('https://api.example.org');
+    expect(resolveApiOrigin({ VITE_API_BASE_URL: 'https://api.example.org/api' })).toBe('https://api.example.org');
     expect(readConfig({ VITE_API_BASE_URL: 'https://api.example.org' }).apiBaseUrl).toBe('https://api.example.org/api/v1');
   });
 

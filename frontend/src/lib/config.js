@@ -9,8 +9,8 @@ const DEV_API_FALLBACK = 'http://localhost:5000';
 export function resolveApiOrigin(env = import.meta.env) {
   const raw = (env.VITE_API_BASE_URL || '').trim();
   if (raw) {
-    // Accept either the API origin or a URL that already ends with /api/v1.
-    return raw.replace(/\/+$/, '').replace(/\/api\/v1$/, '');
+    // Accept the API origin, or a URL that already ends with /api/v1 (or /api).
+    return raw.replace(/\/+$/, '').replace(/\/api(\/v1)?$/, '');
   }
   return env.DEV ? DEV_API_FALLBACK : '';
 }
