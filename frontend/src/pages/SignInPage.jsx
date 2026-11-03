@@ -5,8 +5,11 @@ import { config as defaultConfig } from '../lib/config';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { Button, Card, inputClass } from '../components/ui';
 
+// Demo accounts on the live Supabase project. Only the email is prefilled; passwords are never embedded.
+export const DEMO_ADMIN_EMAIL = 'admin@caelum.demo';
+
 export default function SignInPage({ config = defaultConfig, passwordEnabled = isSupabaseConfigured }) {
-  const { signInWithPassword, signInDemo, error, status } = useAuth();
+  const { signInWithPassword, error, status } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
@@ -51,15 +54,16 @@ export default function SignInPage({ config = defaultConfig, passwordEnabled = i
             </Button>
           </form>
         ) : (
-          <p className="text-xs text-slate-500">Password sign-in needs VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.</p>
+          <p className="text-xs text-slate-500">Password sign-in needs VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY.</p>
         )}
 
-        {config.demoMode && (
+        {config.demoMode && passwordEnabled && (
           <div className="mt-5 pt-4 border-t border-border-warm">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Demo mode (in-memory API only)</div>
-            <Button variant="burgundy" className="w-full" disabled={busy} onClick={() => run(() => signInDemo('admin'))}>
-              <FlaskConical className="w-3.5 h-3.5" /> Sign in as demo admin (admin@caelum.demo)
+            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Demo</div>
+            <Button variant="burgundy" className="w-full" disabled={busy} onClick={() => { setEmail(DEMO_ADMIN_EMAIL); setPassword(''); }}>
+              <FlaskConical className="w-3.5 h-3.5" /> Use demo admin ({DEMO_ADMIN_EMAIL})
             </Button>
+            <p className="mt-1.5 text-[11px] text-slate-500">Fills in the email. Enter the demo password you were given.</p>
           </div>
         )}
 
