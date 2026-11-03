@@ -2,17 +2,45 @@ import React, { useState } from 'react';
 import { Droplet, LogIn, FlaskConical } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { config as defaultConfig } from '../lib/config';
-import { isSupabaseConfigured } from '../lib/supabase';
+import { isSupabaseConfigured, supabase as defaultSupabase } from '../lib/supabase';
 import { Button, Card, inputClass } from '../components/ui';
 
 // Demo accounts on the live Supabase project. Only the email is prefilled; passwords are never embedded.
 export const DEMO_ADMIN_EMAIL = 'admin@caelum.demo';
+export const RESET_SENT_MESSAGE = 'If that email exists, we sent a link';
 
-export default function SignInPage({ config = defaultConfig, passwordEnabled = isSupabaseConfigured }) {
+function ForgotPassword({ supabase, initialEmail, onBack }) {
+  const [email, setEmail] = useState(initialEmail);
+  const [sent, setSent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const submit = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      await supabase?.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
+    } catch { /* neutral message either way */ }
+    setBusy(false);
+    setSent(true);
+  };
+  return (
+    <form aria-label="Reset password" className="space-y-3" onSubmit={submit}>
+      <label className="block text-xs font-semibold text-slate-600">
+        Email
+        <input className={`${inputClass} mt-1`} type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required />
+      </label>
+      <Button type="submit" className="w-full" disabled={busy}>Send reset link</Button>
+      {sent && <p role="status" className="text-xs text-slate-600">{RESET_SENT_MESSAGE}</p>}
+      <button type="button" className="text-xs text-brand-burgundy underline" onClick={onBack}>Back to sign-in</button>
+    </form>
+  );
+}
+
+export default function SignInPage({ config = defaultConfig, passwordEnabled = isSupabaseConfigured, supabase = defaultSupabase }) {
   const { signInWithPassword, error, status } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
+  const [forgot, setForgot] = useState(false);
 
   const run = async (fn) => {
     setBusy(true);
@@ -36,7 +64,9 @@ export default function SignInPage({ config = defaultConfig, passwordEnabled = i
           <p role="alert" className="text-xs text-red-700 mb-3">VITE_API_BASE_URL is not set for this build, so the console cannot reach the API.</p>
         )}
 
-        {passwordEnabled ? (
+        {passwordEnabled && forgot ? (
+          <ForgotPassword supabase={supabase} initialEmail={email} onBack={() => setForgot(false)} />
+        ) : passwordEnabled ? (
           <form
             className="space-y-3"
             onSubmit={(e) => { e.preventDefault(); run(() => signInWithPassword(email, password)); }}
@@ -52,6 +82,7 @@ export default function SignInPage({ config = defaultConfig, passwordEnabled = i
             <Button type="submit" className="w-full" disabled={busy || status === 'loading'}>
               <LogIn className="w-3.5 h-3.5" /> Sign in
             </Button>
+            <button type="button" className="text-xs text-brand-burgundy underline" onClick={() => setForgot(true)}>Forgot password?</button>
           </form>
         ) : (
           <p className="text-xs text-slate-500">Password sign-in needs VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY.</p>

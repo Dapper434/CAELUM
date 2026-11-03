@@ -1,5 +1,5 @@
 import React from 'react';
-import { Droplet, User, Moon, Sun, MapPin, LogOut } from 'lucide-react';
+import { Droplet, User, Moon, Sun, MapPin, LogOut, KeyRound } from 'lucide-react';
 
 export default function Navbar({
   isLowLight,
@@ -12,6 +12,7 @@ export default function Navbar({
   demoMode = false,
   user,
   onSignOut,
+  onChangePassword,
 }) {
   const activeLowLight = Boolean(isLowLight);
   const handleToggle = onToggleLowLight;
@@ -110,6 +111,15 @@ export default function Navbar({
                 <div className="text-[10px] text-blue-200">{user?.role || 'admin'}</div>
               </div>
             </div>
+            {onChangePassword && (
+              <button
+                onClick={onChangePassword}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold border bg-white/10 text-blue-100 border-white/15 hover:bg-white/20"
+                title="Change password"
+              >
+                <KeyRound className="w-3.5 h-3.5" />
+              </button>
+            )}
             <button
               onClick={onSignOut}
               className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold border bg-white/10 text-blue-100 border-white/15 hover:bg-white/20"

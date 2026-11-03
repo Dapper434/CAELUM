@@ -51,3 +51,20 @@ describe('SignInPage', () => {
     expect(screen.getByText(/VITE_SUPABASE_PUBLISHABLE_KEY/)).toBeInTheDocument();
   });
 });
+
+describe('Forgot password', () => {
+  it.each([
+    ['success', async () => ({ data: {}, error: null })],
+    ['error', async () => ({ data: null, error: { message: 'User not found' } })],
+    ['throw', async () => { throw new Error('offline'); }],
+  ])('always shows the neutral message (%s)', async (_label, impl) => {
+    const supabase = { auth: { getSession: vi.fn(async () => ({ data: { session: null } })), signOut: vi.fn(), resetPasswordForEmail: vi.fn(impl) } };
+    render(<AuthProvider supabase={supabase}><SignInPage config={{ apiBaseUrl: 'x', demoMode: false }} passwordEnabled supabase={supabase} /></AuthProvider>);
+    await userEvent.click(screen.getByRole('button', { name: 'Forgot password?' }));
+    await userEvent.type(screen.getByLabelText('Email'), 'who@caelum.ke');
+    await userEvent.click(screen.getByRole('button', { name: /send reset link/i }));
+    expect(await screen.findByText('If that email exists, we sent a link')).toBeInTheDocument();
+    expect(supabase.auth.resetPasswordForEmail).toHaveBeenCalledWith('who@caelum.ke', { redirectTo: `${window.location.origin}/reset-password` });
+    expect(screen.queryByText(/not found|offline/i)).not.toBeInTheDocument();
+  });
+});
