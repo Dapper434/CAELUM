@@ -1,6 +1,6 @@
 # Admin console ↔ CAELUM API contract gaps
 
-Measured against `CAELUM_API/docs/API_CONTRACT.md` v1.2.0. Nothing here is faked in the
+Measured against `CAELUM_API/docs/API_CONTRACT.md` v1.2.0 and the live API (v1.2.3 on Render). Nothing here is faked in the
 console: each gap is either left out or worked around in the open, as described.
 
 | # | Gap | What the console does now | Suggested API change |
@@ -11,3 +11,6 @@ console: each gap is either left out or worked around in the open, as described.
 | 4 | QR payload is not served to admins (by design: only the donor facility renders it). | The custody panel shows QR status and expiry from `GET /transfers/{id}/qr` but not the code itself. | None; by design. |
 | 5 | No per-unit history endpoint for inventory corrections. | Corrections are read from the audit log with `action=inventory.corrected` and `entity_type=unit`. | Optional: `GET /inventory/{unit_id}/history`. |
 | 6 | SMS notifications (Africa's Talking) are on hold. | Nothing is built for SMS. | — |
+| 7 | `POST /auth/demo-login` (and `/auth/demo-users`) return `404` on the live API (v1.2.3); demo accounts are now real Supabase users. Contract §5.1 still lists them. | Removed. Sign-in is always Supabase `signInWithPassword`; the access token goes to the API as `Bearer`. With `VITE_DEMO_MODE=true` the sign-in page can prefill `admin@caelum.demo`, never a password. | Update the contract to drop demo-login for deployed stores. |
+| 8 | Live API sends no `Access-Control-Allow-Origin` header (checked on 3 Nov 2026 for `http://localhost:5173` and a Vercel origin, on both `GET` and preflight). | Nothing the console can do: browsers will block its API calls until `CORS_ORIGINS` on Render includes the console's origin. Server-side checks (curl/node) work. | Set `CORS_ORIGINS` on Render to the Vercel domain(s) and `http://localhost:5173`. |
+
