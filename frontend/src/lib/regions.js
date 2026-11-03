@@ -16,6 +16,21 @@ export const REGIONS = [
     name: "North Rift Region",
     counties: ["Uasin Gishu", "Nandi", "Trans Nzoia", "Elgeyo-Marakwet"],
   },
+  {
+    code: "coast",
+    name: "Coast Region",
+    counties: ["Mombasa", "Kilifi", "Kwale", "Lamu", "Taita-Taveta", "Tana River"],
+  },
+  {
+    code: "nyanza",
+    name: "Nyanza Region",
+    counties: ["Kisumu", "Siaya", "Homa Bay", "Migori", "Kisii", "Nyamira"],
+  },
+  {
+    code: "western",
+    name: "Western Region",
+    counties: ["Kakamega", "Bungoma", "Busia", "Vihiga"],
+  },
 ];
 
 export function regionByCode(code) {
