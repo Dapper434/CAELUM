@@ -22,7 +22,8 @@ export function readConfig(env = import.meta.env) {
     apiOrigin,
     apiBaseUrl: apiOrigin ? `${apiOrigin}/api/v1` : '',
     supabaseUrl: (env.VITE_SUPABASE_URL || '').trim(),
-    supabaseAnonKey: (env.VITE_SUPABASE_ANON_KEY || '').trim(),
+    // Publishable key (sb_publishable_…); the legacy anon key name is still read as a fallback.
+    supabaseKey: (env.VITE_SUPABASE_PUBLISHABLE_KEY || env.VITE_SUPABASE_ANON_KEY || '').trim(),
     demoMode: String(env.VITE_DEMO_MODE || '').toLowerCase() === 'true',
   };
 }

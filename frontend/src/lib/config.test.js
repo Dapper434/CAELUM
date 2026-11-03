@@ -26,4 +26,10 @@ describe('config', () => {
       expect(readConfig({ VITE_API_BASE_URL: v }).apiBaseUrl).toBe('https://caelum-api.onrender.com/api/v1');
     }
   });
+
+  it('reads the publishable key and falls back to the legacy anon key', () => {
+    expect(readConfig({ VITE_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_x', VITE_SUPABASE_ANON_KEY: 'old' }).supabaseKey).toBe('sb_publishable_x');
+    expect(readConfig({ VITE_SUPABASE_ANON_KEY: 'old' }).supabaseKey).toBe('old');
+    expect(readConfig({}).supabaseKey).toBe('');
+  });
 });

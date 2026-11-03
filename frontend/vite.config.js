@@ -16,6 +16,7 @@ export default defineConfig({
     env: {
       VITE_API_BASE_URL: 'http://api.test',
       VITE_SUPABASE_URL: '',
+      VITE_SUPABASE_PUBLISHABLE_KEY: '',
       VITE_SUPABASE_ANON_KEY: '',
       VITE_DEMO_MODE: 'true',
     },
