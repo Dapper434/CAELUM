@@ -6,10 +6,10 @@ and the hash-chained audit log.
 
 The console is a static React app. **It talks only to the CAELUM API** (`CAELUM_API`, contract
 `docs/API_CONTRACT.md` v1.2.0) with a Supabase Auth JWT for an `admin` user. It never reads
-or writes Supabase tables directly and never calls the old `backend/`.
+or writes Supabase tables directly. All server logic, the database schema and migrations live in
+**CAELUM_API**; this repo has no backend of its own.
 
-> **`backend/` is deprecated.** The Flask service in `backend/` is kept for reference only and
-> is no longer used by the console. All server logic lives in **CAELUM_API**. Don't add to it.
+Production API: `https://caelum-api.onrender.com` (Render).
 
 ## Features
 
@@ -56,7 +56,7 @@ All are read at build time (Vite only exposes `VITE_*`).
 
 | Variable | Required | Meaning |
 |---|---|---|
-| `VITE_API_BASE_URL` | yes (prod) | Origin of the CAELUM API, e.g. `https://api.example.com`. `/api/v1` is added for you; a value already ending in `/api` or `/api/v1` is accepted. Dev builds fall back to `http://localhost:5000` when empty; **production builds have no fallback** and show a "not configured" error. |
+| `VITE_API_BASE_URL` | yes (prod) | Origin of the CAELUM API, e.g. `https://caelum-api.onrender.com`. `/api/v1` is added for you; a value already ending in `/api` or `/api/v1` is accepted. Dev builds fall back to `http://localhost:5000` when empty; **production builds have no fallback** and show a "not configured" error. |
 | `VITE_SUPABASE_URL` | yes for password sign-in | Supabase project URL, used for Auth only. |
 | `VITE_SUPABASE_ANON_KEY` | yes for password sign-in | Supabase anon (public) key, used for Auth only. |
 | `VITE_DEMO_MODE` | no | `true` shows "Sign in as demo admin", which calls `POST /auth/demo-login` for `admin@caelum.demo`. Leave `false` for production. |
@@ -66,11 +66,11 @@ All are read at build time (Vite only exposes `VITE_*`).
 1. Import the repo, set **Root Directory** to `frontend`. Framework preset: Vite
    (build `npm run build`, output `dist`).
 2. In Project → Settings → Environment Variables, set for Production (and Preview as needed):
-   - `VITE_API_BASE_URL` = the deployed CAELUM API origin
+   - `VITE_API_BASE_URL` = `https://caelum-api.onrender.com` (the origin only; the console adds `/api/v1`)
    - `VITE_SUPABASE_URL` = the Supabase project URL
    - `VITE_SUPABASE_ANON_KEY` = the Supabase anon key
    - `VITE_DEMO_MODE` = `false` (or `true` on a demo deployment only)
-3. Add the console's Vercel domain to the API's `CORS_ORIGINS`.
+3. Add the console's Vercel domain to `CORS_ORIGINS` on the Render API service.
 4. Redeploy after changing any variable; values are baked in at build time.
 
 ## Architecture
@@ -103,5 +103,5 @@ frontend/src
 ## Repository layout
 
 - `frontend/` — this console.
-- `backend/` — **deprecated** Flask service, kept for reference. Use CAELUM_API instead.
+- Server code lives in the separate **CAELUM_API** repo.
 - `docs/` — contract gaps and project notes.
