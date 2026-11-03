@@ -1,4 +1,4 @@
-/** Operating catchments. Keep codes aligned with backend/app/regions.py. */
+/** Operating catchments used to filter facilities by `region_code`. Codes match the CAELUM API's facility data. */
 
 export const REGIONS = [
   {
@@ -18,8 +18,6 @@ export const REGIONS = [
   },
 ];
 
-export const DEFAULT_REGION = "nairobi";
-
 export function regionByCode(code) {
-  return REGIONS.find((region) => region.code === code) || REGIONS[0];
+  return REGIONS.find((region) => region.code === code) || null;
 }
