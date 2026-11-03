@@ -9,7 +9,7 @@ The console is a static React app. **It talks only to the CAELUM API** (`CAELUM_
 or writes Supabase tables directly. All server logic, the database schema and migrations live in
 **CAELUM_API**; this repo has no backend of its own.
 
-Production API: `https://caelum-api.onrender.com` (Render).
+Production API: `https://caelum-api.onrender.com` (Render, API v1.2.3), with Supabase Auth on project `qvqkxuaslayxvjgamtil`.
 
 ## Features
 
@@ -57,9 +57,9 @@ All are read at build time (Vite only exposes `VITE_*`).
 | Variable | Required | Meaning |
 |---|---|---|
 | `VITE_API_BASE_URL` | yes (prod) | Origin of the CAELUM API, e.g. `https://caelum-api.onrender.com`. `/api/v1` is added for you; a value already ending in `/api` or `/api/v1` is accepted. Dev builds fall back to `http://localhost:5000` when empty; **production builds have no fallback** and show a "not configured" error. |
-| `VITE_SUPABASE_URL` | yes for password sign-in | Supabase project URL, used for Auth only. |
-| `VITE_SUPABASE_ANON_KEY` | yes for password sign-in | Supabase anon (public) key, used for Auth only. |
-| `VITE_DEMO_MODE` | no | `true` shows "Sign in as demo admin", which calls `POST /auth/demo-login` for `admin@caelum.demo`. Leave `false` for production. |
+| `VITE_SUPABASE_URL` | yes | Supabase project URL, used for Auth only: `https://qvqkxuaslayxvjgamtil.supabase.co`. |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | yes | Supabase publishable key (`sb_publishable_…`, public), used for Auth only. The legacy `VITE_SUPABASE_ANON_KEY` is still read as a fallback. |
+| `VITE_DEMO_MODE` | no | `true` shows a "Use demo admin" button that only fills in `admin@caelum.demo`; the user still types the password, and sign-in goes through Supabase like any other account. No passwords are embedded. Leave `false` for production. |
 
 ## Deploying to Vercel
 
@@ -67,10 +67,10 @@ All are read at build time (Vite only exposes `VITE_*`).
    (build `npm run build`, output `dist`).
 2. In Project → Settings → Environment Variables, set for Production (and Preview as needed):
    - `VITE_API_BASE_URL` = `https://caelum-api.onrender.com` (the origin only; the console adds `/api/v1`)
-   - `VITE_SUPABASE_URL` = the Supabase project URL
-   - `VITE_SUPABASE_ANON_KEY` = the Supabase anon key
+   - `VITE_SUPABASE_URL` = `https://qvqkxuaslayxvjgamtil.supabase.co`
+   - `VITE_SUPABASE_PUBLISHABLE_KEY` = `sb_publishable__zef25WCODbHoGHVOORnhQ_IS5Ue54a`
    - `VITE_DEMO_MODE` = `false` (or `true` on a demo deployment only)
-3. Add the console's Vercel domain to `CORS_ORIGINS` on the Render API service.
+3. Add the console's Vercel domain to `CORS_ORIGINS` on the Render API service. Until that is done the browser blocks the console's API calls (see `docs/CONTRACT_GAPS.md`).
 4. Redeploy after changing any variable; values are baked in at build time.
 
 ## Architecture
@@ -79,7 +79,7 @@ All are read at build time (Vite only exposes `VITE_*`).
 frontend/src
 ├── main.jsx              AuthProvider + App
 ├── App.jsx               Auth gate and console shell (navbar, sidebar, sections)
-├── auth/AuthContext.jsx  Supabase password sign-in or demo login; checks /me role=admin; signs out on 401
+├── auth/AuthContext.jsx  Supabase password sign-in; checks /me role=admin; signs out on 401
 ├── lib/
 │   ├── config.js         Reads VITE_* (no localhost fallback outside dev)
 │   ├── supabase.js       Supabase client for Auth only (null when not configured)
@@ -92,8 +92,8 @@ frontend/src
 ```
 
 - **Auth.** Password sign-in goes through Supabase Auth; the access token is sent as
-  `Authorization: Bearer …`. Demo sign-in stores the API-issued token in `sessionStorage`.
-  Either way the console calls `/me` and only lets `role: admin` in. Any `401` from the API
+  `Authorization: Bearer …` (supabase-js refreshes it). There is no API-issued demo token any more.
+  The console calls `/me` and only lets `role: admin` in. Any `401` from the API
   signs the user out with a "session expired" message.
 - **Errors.** API errors (`{error:{code,message,details}}`) become `ApiError` with `status`,
   `code`, `details` and, for `429`, `retryAfter`. Network failures surface as `network_error`.
