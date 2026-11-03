@@ -1,36 +1,21 @@
 import React from 'react';
-import { LayoutDashboard, AlertCircle, Inbox, Truck, Shield, HeartHandshake } from 'lucide-react';
+import { LayoutDashboard, Map, Building2, AlertCircle, Inbox, HandHeart, Truck, Bike, ScrollText, Server, Shield, HeartHandshake } from 'lucide-react';
 
-export default function Sidebar({ activeTab, setActiveTab, alertCount, proposalCount, activeTransfersCount }) {
-  const navItems = [
-    {
-      id: "dashboard",
-      label: "Network Dashboard",
-      icon: LayoutDashboard,
-      badge: null,
-    },
-    {
-      id: "alerts",
-      label: "Shortage Alerts",
-      icon: AlertCircle,
-      badge: alertCount > 0 ? alertCount : null,
-      badgeColor: "bg-status-crimson text-white",
-    },
-    {
-      id: "approval",
-      label: "Approval Inbox",
-      icon: Inbox,
-      badge: proposalCount > 0 ? `${proposalCount} Action` : null,
-      badgeColor: "bg-status-emerald text-white font-bold",
-    },
-    {
-      id: "transfers",
-      label: "Transfers",
-      icon: Truck,
-      badge: activeTransfersCount > 0 ? `${activeTransfersCount} Active` : null,
-      badgeColor: "bg-brand-burgundy text-white font-bold shadow-xs",
-    },
-  ];
+export const NAV_ITEMS = [
+  { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+  { id: 'map', label: 'Live Map', icon: Map },
+  { id: 'facilities', label: 'Facilities', icon: Building2 },
+  { id: 'alerts', label: 'Shortage Alerts', icon: AlertCircle, badgeKey: 'alerts', badgeColor: 'bg-status-crimson text-white' },
+  { id: 'requests', label: 'Requests', icon: Inbox, badgeKey: 'requests', badgeColor: 'bg-status-emerald text-white font-bold' },
+  { id: 'offers', label: 'Offers', icon: HandHeart },
+  { id: 'transfers', label: 'Transfers', icon: Truck, badgeKey: 'transfers', badgeColor: 'bg-brand-burgundy text-white font-bold shadow-xs' },
+  { id: 'couriers', label: 'Couriers', icon: Bike },
+  { id: 'audit', label: 'Audit Log', icon: ScrollText },
+  { id: 'system', label: 'System', icon: Server },
+];
+
+export default function Sidebar({ activeTab, setActiveTab, badges = {} }) {
+  const navItems = NAV_ITEMS.map((item) => ({ ...item, badge: item.badgeKey && badges[item.badgeKey] > 0 ? badges[item.badgeKey] : null }));
 
   return (
     <aside className="w-full md:w-64 bg-bg-surface dark:bg-slate-900 border-b md:border-b-0 md:border-r border-border-warm dark:border-slate-800 flex flex-col justify-between p-3 sm:p-4 md:min-h-[calc(100vh-4rem)] transition-colors flex-shrink-0">
@@ -40,7 +25,7 @@ export default function Sidebar({ activeTab, setActiveTab, alertCount, proposalC
             <span>Clinical Operations</span>
             <span className="w-1.5 h-1.5 rounded-full bg-brand-burgundy"></span>
           </div>
-          <nav className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-1 gap-1.5 md:space-y-1">
+          <nav aria-label="Sections" className="grid grid-cols-2 sm:grid-cols-5 md:grid-cols-1 gap-1.5 md:space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -54,7 +39,7 @@ export default function Sidebar({ activeTab, setActiveTab, alertCount, proposalC
                       : "bg-bg-inset dark:bg-slate-800/60 border border-border-warm dark:border-slate-700/60 text-slate-800 dark:text-slate-200 hover:border-brand-burgundy/40 hover:bg-bg-surface dark:hover:bg-slate-800"
                   }`}
                 >
-                  {/* Task 1: Burgundy Accent Underline/Edge Indicator */}
+                  
                   {isActive && (
                     <span className="absolute left-0 top-0 bottom-0 w-1 bg-brand-burgundy"></span>
                   )}
@@ -81,7 +66,7 @@ export default function Sidebar({ activeTab, setActiveTab, alertCount, proposalC
             <span>Safety check</span>
           </div>
           <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-            Distance, stock, and expiry are checked before a bag is offered. Nothing moves until you approve it.
+            Every change goes through the CAELUM API and lands in the hash-chained audit log.
           </p>
         </div>
       </div>
@@ -92,7 +77,7 @@ export default function Sidebar({ activeTab, setActiveTab, alertCount, proposalC
           <span>Your approval comes first</span>
         </div>
         <p className="text-[10.5px] text-amber-900/80 dark:text-amber-300/80 leading-normal">
-          The written reason is a suggestion. You approve every transfer.
+          Suggested requests are only suggestions. Facilities confirm, offer and accept every transfer.
         </p>
       </div>
     </aside>
