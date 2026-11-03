@@ -17,6 +17,7 @@ import RequestsPage from './pages/RequestsPage';
 import OffersPage from './pages/OffersPage';
 import TransfersPage from './pages/TransfersPage';
 import CouriersPage from './pages/CouriersPage';
+import UsersPage from './pages/UsersPage';
 import AuditPage from './pages/AuditPage';
 import SystemPage from './pages/SystemPage';
 
@@ -74,6 +75,7 @@ function Shell() {
           {activeTab === 'offers' && <OffersPage />}
           {activeTab === 'transfers' && <TransfersPage />}
           {activeTab === 'couriers' && <CouriersPage />}
+          {activeTab === 'users' && <UsersPage />}
           {activeTab === 'audit' && <AuditPage />}
           {activeTab === 'system' && <SystemPage />}
         </main>

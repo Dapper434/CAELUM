@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Map, Building2, AlertCircle, Inbox, HandHeart, Truck, Bike, ScrollText, Server, Shield, HeartHandshake } from 'lucide-react';
+import { LayoutDashboard, Map, Building2, AlertCircle, Inbox, HandHeart, Truck, Bike, ScrollText, Server, Shield, HeartHandshake, UserCog } from 'lucide-react';
 
 export const NAV_ITEMS = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
@@ -10,6 +10,7 @@ export const NAV_ITEMS = [
   { id: 'offers', label: 'Offers', icon: HandHeart },
   { id: 'transfers', label: 'Transfers', icon: Truck, badgeKey: 'transfers', badgeColor: 'bg-brand-burgundy text-white font-bold shadow-xs' },
   { id: 'couriers', label: 'Couriers', icon: Bike },
+  { id: 'users', label: 'Users', icon: UserCog },
   { id: 'audit', label: 'Audit Log', icon: ScrollText },
   { id: 'system', label: 'System', icon: Server },
 ];
