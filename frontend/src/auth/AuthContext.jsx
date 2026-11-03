@@ -1,23 +1,23 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '../lib/api/client';
 import { getMe } from '../lib/api/system';
-import { demoLogin } from '../lib/api/auth';
 import { supabase as defaultSupabase } from '../lib/supabase';
 
-const DEMO_TOKEN_KEY = 'caelum_demo_token';
+// Left over from the retired demo-login flow; cleared so an old token is never sent.
+const LEGACY_DEMO_TOKEN_KEY = 'caelum_demo_token';
 const AuthContext = createContext(null);
 
 /**
- * Holds the admin session. A token comes from Supabase Auth or, in demo mode,
- * from POST /auth/demo-login. Every session is checked with GET /me and must
- * carry the admin role. Any 401 from the API signs the user out.
+ * Holds the admin session. The token always comes from Supabase Auth
+ * (signInWithPassword) and is sent to the API as a Bearer token. Every session
+ * is checked with GET /me and must carry the admin role. Any 401 from the API
+ * signs the user out.
  */
 export function AuthProvider({ children, supabase = defaultSupabase }) {
   const [state, setState] = useState({ status: 'loading', me: null, mode: null, error: null });
   const modeRef = useRef(null);
 
   const tokenProvider = useCallback(async () => {
-    if (modeRef.current === 'demo') return sessionStorage.getItem(DEMO_TOKEN_KEY);
     if (modeRef.current === 'supabase' && supabase) {
       const { data } = await supabase.auth.getSession();
       return data?.session?.access_token || null;
@@ -28,7 +28,6 @@ export function AuthProvider({ children, supabase = defaultSupabase }) {
   const clearSession = useCallback(async (error = null) => {
     const mode = modeRef.current;
     modeRef.current = null;
-    sessionStorage.removeItem(DEMO_TOKEN_KEY);
     if (mode === 'supabase' && supabase) {
       try { await supabase.auth.signOut(); } catch { /* already signed out */ }
     }
@@ -62,10 +61,7 @@ export function AuthProvider({ children, supabase = defaultSupabase }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      if (sessionStorage.getItem(DEMO_TOKEN_KEY)) {
-        await loadMe('demo');
-        return;
-      }
+      sessionStorage.removeItem(LEGACY_DEMO_TOKEN_KEY);
       if (supabase) {
         const { data } = await supabase.auth.getSession();
         if (!cancelled && data?.session) {
@@ -93,24 +89,11 @@ export function AuthProvider({ children, supabase = defaultSupabase }) {
     return loadMe('supabase');
   }, [supabase, loadMe]);
 
-  const signInDemo = useCallback(async (login = 'admin') => {
-    setState((s) => ({ ...s, error: null }));
-    try {
-      const result = await demoLogin(login);
-      sessionStorage.setItem(DEMO_TOKEN_KEY, result.access_token);
-      return loadMe('demo');
-    } catch (err) {
-      setState((s) => ({ ...s, status: 'signedOut', error: err.message }));
-      return false;
-    }
-  }, [loadMe]);
-
   const value = useMemo(() => ({
     ...state,
     signInWithPassword,
-    signInDemo,
     signOut: () => clearSession(null),
-  }), [state, signInWithPassword, signInDemo, clearSession]);
+  }), [state, signInWithPassword, clearSession]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

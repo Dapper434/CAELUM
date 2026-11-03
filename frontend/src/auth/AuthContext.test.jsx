@@ -10,8 +10,9 @@ function Probe() {
     <div>
       <span data-testid="status">{auth.status}</span>
       <span data-testid="error">{auth.error || ''}</span>
-      <button onClick={() => auth.signInDemo('admin')}>demo</button>
-      <button onClick={() => auth.signInWithPassword('a@b.c', 'pw')}>password</button>
+      <span data-testid="email">{auth.me?.email || ''}</span>
+      <button onClick={() => auth.signInWithPassword('admin@caelum.demo', 'pw')}>password</button>
+      <button onClick={() => auth.signOut()}>out</button>
     </div>
   );
 }
@@ -29,39 +30,62 @@ function routeFetch(routes) {
   });
 }
 
+function fakeSupabase({ session = null, signInError = null } = {}) {
+  let current = session;
+  return {
+    auth: {
+      getSession: vi.fn(async () => ({ data: { session: current } })),
+      signInWithPassword: vi.fn(async () => {
+        if (signInError) return { error: { message: signInError } };
+        current = { access_token: 'sb-jwt' };
+        return { data: { session: current }, error: null };
+      }),
+      signOut: vi.fn(async () => { current = null; return {}; }),
+    },
+  };
+}
+
 describe('AuthProvider', () => {
-  it('signs in with the demo admin and checks /me', async () => {
+  it('signs in with Supabase and sends the access token to /me as Bearer', async () => {
+    const supabase = fakeSupabase();
     const fetchMock = routeFetch({
-      'POST /api/v1/auth/demo-login': respond(200, { data: { access_token: 'demo-jwt', user: { role: 'admin' } } }),
       'GET /api/v1/me': (url, init) => {
-        expect(init.headers.Authorization).toBe('Bearer demo-jwt');
+        expect(init.headers.Authorization).toBe('Bearer sb-jwt');
         return respond(200, { data: { role: 'admin', email: 'admin@caelum.demo' } });
       },
     });
     vi.stubGlobal('fetch', fetchMock);
-    render(<AuthProvider supabase={null}><Probe /></AuthProvider>);
+    render(<AuthProvider supabase={supabase}><Probe /></AuthProvider>);
     await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('signedOut'));
-    await act(async () => screen.getByText('demo').click());
+    await act(async () => screen.getByText('password').click());
     await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('signedIn'));
-    expect(sessionStorage.getItem('caelum_demo_token')).toBe('demo-jwt');
-    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-    expect(body).toEqual({ login: 'admin' });
+    expect(screen.getByTestId('email')).toHaveTextContent('admin@caelum.demo');
+    expect(supabase.auth.signInWithPassword).toHaveBeenCalledWith({ email: 'admin@caelum.demo', password: 'pw' });
+    expect(fetchMock.mock.calls.every(([u]) => !String(u).includes('demo-login'))).toBe(true);
   });
 
-  it('rejects a token without the admin role', async () => {
-    vi.stubGlobal('fetch', routeFetch({
-      'POST /api/v1/auth/demo-login': respond(200, { data: { access_token: 'x' } }),
-      'GET /api/v1/me': respond(200, { data: { role: 'facility' } }),
-    }));
-    render(<AuthProvider supabase={null}><Probe /></AuthProvider>);
+  it('shows the Supabase error for bad credentials and never calls the API', async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    render(<AuthProvider supabase={fakeSupabase({ signInError: 'Invalid login credentials' })}><Probe /></AuthProvider>);
     await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('signedOut'));
-    await act(async () => screen.getByText('demo').click());
-    await waitFor(() => expect(screen.getByTestId('error')).toHaveTextContent(/admin role/));
-    expect(sessionStorage.getItem('caelum_demo_token')).toBeNull();
+    await act(async () => screen.getByText('password').click());
+    await waitFor(() => expect(screen.getByTestId('error')).toHaveTextContent('Invalid login credentials'));
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it('signs out when the API answers 401', async () => {
-    sessionStorage.setItem('caelum_demo_token', 'old');
+  it('rejects an account without the admin role and signs it out of Supabase', async () => {
+    const supabase = fakeSupabase();
+    vi.stubGlobal('fetch', routeFetch({ 'GET /api/v1/me': respond(200, { data: { role: 'courier' } }) }));
+    render(<AuthProvider supabase={supabase}><Probe /></AuthProvider>);
+    await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('signedOut'));
+    await act(async () => screen.getByText('password').click());
+    await waitFor(() => expect(screen.getByTestId('error')).toHaveTextContent(/admin role/));
+    expect(supabase.auth.signOut).toHaveBeenCalled();
+  });
+
+  it('restores a saved session, then signs out when the API answers 401', async () => {
+    const supabase = fakeSupabase({ session: { access_token: 'saved' } });
     let meCalls = 0;
     vi.stubGlobal('fetch', routeFetch({
       'GET /api/v1/me': () => {
@@ -71,34 +95,23 @@ describe('AuthProvider', () => {
           : respond(401, { error: { code: 'unauthorized', message: 'expired' } });
       },
     }));
-    render(<AuthProvider supabase={null}><Probe /></AuthProvider>);
+    render(<AuthProvider supabase={supabase}><Probe /></AuthProvider>);
     await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('signedIn'));
     await act(async () => { await api.get('/me').catch(() => {}); });
     await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('signedOut'));
     expect(screen.getByTestId('error')).toHaveTextContent(/expired/);
-    expect(sessionStorage.getItem('caelum_demo_token')).toBeNull();
+    expect(supabase.auth.signOut).toHaveBeenCalled();
   });
 
-  it('uses the Supabase session token for password sign-in', async () => {
-    const supabase = {
-      auth: {
-        getSession: vi.fn()
-          .mockResolvedValueOnce({ data: { session: null } })
-          .mockResolvedValue({ data: { session: { access_token: 'sb-jwt' } } }),
-        signInWithPassword: vi.fn().mockResolvedValue({ error: null }),
-        signOut: vi.fn().mockResolvedValue({}),
-      },
-    };
-    vi.stubGlobal('fetch', routeFetch({
-      'GET /api/v1/me': (url, init) => {
-        expect(init.headers.Authorization).toBe('Bearer sb-jwt');
-        return respond(200, { data: { role: 'admin' } });
-      },
-    }));
-    render(<AuthProvider supabase={supabase}><Probe /></AuthProvider>);
+  it('clears a leftover demo token and reports missing Supabase config', async () => {
+    sessionStorage.setItem('caelum_demo_token', 'old');
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    render(<AuthProvider supabase={null}><Probe /></AuthProvider>);
     await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('signedOut'));
+    expect(sessionStorage.getItem('caelum_demo_token')).toBeNull();
     await act(async () => screen.getByText('password').click());
-    await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('signedIn'));
-    expect(supabase.auth.signInWithPassword).toHaveBeenCalledWith({ email: 'a@b.c', password: 'pw' });
+    expect(screen.getByTestId('error')).toHaveTextContent(/not configured/);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
