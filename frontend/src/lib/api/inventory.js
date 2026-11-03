@@ -29,5 +29,5 @@ export function correctInventoryUnit(id, changes, reason) {
 /** Logged corrections come from the audit log (action inventory.corrected). */
 export const listInventoryCorrections = ({ unitId, limit = 100 } = {}) =>
   api.get('/audit', {
-    query: { action: 'inventory.corrected', entity_type: unitId ? 'inventory' : undefined, entity_id: unitId, limit },
+    query: { action: 'inventory.corrected', entity_type: unitId ? 'unit' : undefined, entity_id: unitId, limit },
   });
