@@ -1,19 +1,14 @@
+/**
+ * Supabase is used for sign-in only (Supabase Auth). All data goes through
+ * CAELUM_API; the console never reads or writes Supabase tables directly.
+ */
 import { createClient } from '@supabase/supabase-js';
+import { config } from './config';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://demo-caelum.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'demo-anon-key';
+export const isSupabaseConfigured = Boolean(config.supabaseUrl && config.supabaseAnonKey);
 
-export const isSupabaseConfigured = Boolean(
-  import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
-);
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: false,
-  },
-  realtime: {
-    params: {
-      eventsPerSecond: 10,
-    },
-  },
-});
+export const supabase = isSupabaseConfigured
+  ? createClient(config.supabaseUrl, config.supabaseAnonKey, {
+      auth: { persistSession: true, autoRefreshToken: true, storageKey: 'caelum-admin-auth' },
+    })
+  : null;
