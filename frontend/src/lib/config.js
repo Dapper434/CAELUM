@@ -4,7 +4,8 @@
  * VITE_API_BASE_URL we fall back to the local API; a production build never does.
  */
 
-const DEV_API_FALLBACK = 'http://localhost:5000';
+// Statically replaced by Vite, so production bundles don't even contain the local URL.
+const DEV_API_FALLBACK = import.meta.env.DEV ? 'http://localhost:5000' : '';
 
 export function resolveApiOrigin(env = import.meta.env) {
   const raw = (env.VITE_API_BASE_URL || '').trim();
