@@ -18,7 +18,7 @@ export default function SystemPage() {
   const v1 = useApiData(getHealth, [], { pollMs: 60000 });
   const bands = useApiData(getColdChainBands, []);
   const reasons = useApiData(listCourierDeclineReasons, []);
-  const { me, mode } = useAuth();
+  const { me } = useAuth();
   const cfg = readConfig();
 
   return (
@@ -40,7 +40,7 @@ export default function SystemPage() {
           <div className="grid grid-cols-2 gap-3">
             <Field label="Email">{me?.email}</Field>
             <Field label="Role">{me?.role}</Field>
-            <Field label="Mode">{mode === 'demo' ? 'Demo' : 'Supabase'}</Field>
+            <Field label="Sign-in">Supabase Auth</Field>
             <Field label="User id"><span className="font-mono">{me?.user_id}</span></Field>
           </div>
         </Section>

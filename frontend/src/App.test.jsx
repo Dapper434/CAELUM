@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-const auth = { status: 'signedIn', me: { email: 'admin@caelum.demo', role: 'admin' }, signOut: vi.fn(), signInDemo: vi.fn(), signInWithPassword: vi.fn() };
+const auth = { status: 'signedIn', me: { email: 'admin@caelum.demo', role: 'admin' }, signOut: vi.fn(), signInWithPassword: vi.fn() };
 vi.mock('./auth/AuthContext', () => ({ useAuth: () => auth }));
 vi.mock('./components/LeafletMap', () => ({ default: () => <div data-testid="map" /> }));
 vi.mock('./pages/OverviewPage', () => ({ default: () => <div>overview-page</div> }));

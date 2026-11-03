@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { api } from '../lib/api/client';
 
-vi.mock('../auth/AuthContext', () => ({ useAuth: () => ({ me: { email: 'admin@caelum.demo', role: 'admin', user_id: 'u1' }, mode: 'demo' }) }));
+vi.mock('../auth/AuthContext', () => ({ useAuth: () => ({ me: { email: 'admin@caelum.demo', role: 'admin', user_id: 'u1' } }) }));
 const { default: SystemPage } = await import('./SystemPage');
 
 describe('SystemPage', () => {
