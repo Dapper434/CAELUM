@@ -15,11 +15,11 @@ console: each gap is either left out or worked around in the open, as described.
 | 8 | ~~Live API sent no CORS headers.~~ Resolved: DAPPER verified on 3 Nov 2026 (with an `Origin` header) that Render allows `https://caelum-console.vercel.app`. | None for production. | If local dev is blocked, add `http://localhost:5173` to `CORS_ORIGINS` on Render. |
 
 
-## Admin user management (not live yet)
+## Admin user management (contract v1.3.0, §5.12)
 
-The console's Users page targets these endpoints, which the API does not serve yet. Until they ship, the page shows the API's error (likely 404).
-
-- `GET /api/v1/admin/users`: assumed to page with `limit` and `offset` query params (page size 50) and to return the usual `{data, meta}` envelope. The client reads `meta.has_more`, or `meta.total` with `meta.offset`, and otherwise treats a full page as "there may be more". It also sends an optional `role` filter. Rows are assumed to carry `user_id, email, role, full_name, facility_id, facility_name, courier_id, last_sign_in_at, confirmed`. Please confirm or tell us the real paging params.
-- `POST /api/v1/admin/users/invite`: body `{email, role, full_name, facility_id?, courier_id?}`. The console sends `facility_id` only for donor and recipient, and `courier_id` only for courier. Returns 201; 409 means the email is already registered; 400 errors should use the standard `{error: {code, message}}` shape, because the console shows `message` as is.
-- `POST /api/v1/admin/users/{id}/resend-invite` and `POST /api/v1/admin/users/{id}/disable`: assumed to take an empty JSON body and to return 2xx. The console reloads the list afterwards and doesn't depend on the response body.
-- The API sets each invite's redirect per role on the server: admin to caelum-console, donor and recipient to caelum-facility, courier to caelum-courier, each at `/reset-password`. The console sends no redirect in the invite request. The console's forgot-password link uses `<origin>/reset-password`, so `https://caelum-console.vercel.app/reset-password` must be in Supabase Auth's allowed redirect URLs.
+- Resolved under v1.3.0: paging. `GET /admin/users` uses `page` and `per_page` (1–200, default 50) with `meta {page, per_page, count, has_more, next_page}` and no total. The console asks for 50 per page and uses `has_more` and `next_page` for "Load more". There's no role filter in the contract, so the console doesn't send one.
+- Resolved under v1.3.0: the error shape. Errors are `{error: {code, message}}`. The console handles `403` (not an admin) on all four endpoints, invite `400` (shows the server's message) and `409 email_exists`, and resend `404` (unknown user) and `409 already_confirmed`.
+- Users carry `status: invited|confirmed|disabled`; there's no `confirmed` flag. Resend shows only for `invited` users, and Disable only when the user isn't disabled.
+- A courier invite without `courier_id` is valid, because the server creates and links a courier row.
+- The API sets each invite's redirect per role on the server: admin to caelum-console, donor and recipient to caelum-facility, courier to caelum-courier, each at `/reset-password`. The console sends no `redirect_to`. The console's forgot-password link uses `<origin>/reset-password`, so `https://caelum-console.vercel.app/reset-password` must be in Supabase Auth's allowed redirect URLs.
+- Still open: whether these endpoints are deployed on Render. Until they are, the page shows the API's error.
