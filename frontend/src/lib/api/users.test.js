@@ -19,6 +19,8 @@ describe('users api', () => {
     const post = vi.spyOn(api, 'post').mockResolvedValue({});
     await inviteUser({ email: ' a@b.co ', role: 'donor', full_name: 'A', facility_id: 'f1', courier_id: 'c1' });
     expect(post).toHaveBeenCalledWith('/admin/users/invite', { email: 'a@b.co', role: 'donor', full_name: 'A', facility_id: 'f1' });
+    expect(Object.keys(post.mock.calls[0][1])).not.toEqual(expect.arrayContaining(['redirectTo']));
+    expect(post.mock.calls[0][1]).not.toHaveProperty('redirect_to');
     await inviteUser({ email: 'c@b.co', role: 'courier', full_name: 'C', facility_id: 'f1', courier_id: 'c1' });
     expect(post).toHaveBeenLastCalledWith('/admin/users/invite', { email: 'c@b.co', role: 'courier', full_name: 'C', courier_id: 'c1' });
     await resendInvite('u1'); await disableUser('u1');

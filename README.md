@@ -70,7 +70,7 @@ All are read at build time (Vite only exposes `VITE_*`).
    - `VITE_SUPABASE_URL` = `https://qvqkxuaslayxvjgamtil.supabase.co`
    - `VITE_SUPABASE_PUBLISHABLE_KEY` = `sb_publishable__zef25WCODbHoGHVOORnhQ_IS5Ue54a`
    - `VITE_DEMO_MODE` = `false` (or `true` on a demo deployment only)
-3. Add the console's Vercel domain to `CORS_ORIGINS` on the Render API service. Until that is done the browser blocks the console's API calls (see `docs/CONTRACT_GAPS.md`).
+3. The live console is https://caelum-console.vercel.app, and Render's `CORS_ORIGINS` already allows it. Add any other origin (for example a preview domain) there if the browser blocks API calls.
 4. Redeploy after changing any variable; values are baked in at build time.
 
 ## Architecture
