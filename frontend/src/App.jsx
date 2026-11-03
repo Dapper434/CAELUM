@@ -7,7 +7,10 @@ import { getHealth } from './lib/api/system';
 import { getOverview } from './lib/api/admin';
 import { config } from './lib/config';
 import { REGIONS } from './lib/regions';
-import { Loading } from './components/ui';
+import { Button, Card, Loading } from './components/ui';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import PasswordForm from './components/PasswordForm';
+import { supabase } from './lib/supabase';
 import SignInPage from './pages/SignInPage';
 import OverviewPage from './pages/OverviewPage';
 import NetworkMapPage from './pages/NetworkMapPage';
@@ -35,6 +38,8 @@ function Shell() {
   const { me, signOut } = useAuth();
   const [isLowLight, toggleLowLight] = useLowLight();
   const [activeTab, setActiveTab] = useState('overview');
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [passwordNotice, setPasswordNotice] = useState('');
   const [regionCode, setRegionCode] = useState(() => {
     const saved = localStorage.getItem('caelum_region') || '';
     return REGIONS.some((r) => r.code === saved) ? saved : '';
@@ -63,7 +68,21 @@ function Shell() {
         demoMode={config.demoMode}
         user={me}
         onSignOut={signOut}
+        onChangePassword={() => { setPasswordNotice(''); setChangingPassword(true); }}
       />
+      {(changingPassword || passwordNotice) && (
+        <div className="max-w-7xl w-full mx-auto px-3 sm:px-5 md:px-6 pt-3">
+          <Card className="p-4 max-w-sm">
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-sm font-bold">Change password</div>
+              <Button variant="ghost" onClick={() => { setChangingPassword(false); setPasswordNotice(''); }}>Close</Button>
+            </div>
+            {passwordNotice
+              ? <p role="status" className="text-xs text-emerald-700">{passwordNotice}</p>
+              : <PasswordForm supabase={supabase} onDone={() => { setChangingPassword(false); setPasswordNotice('Password updated.'); }} />}
+          </Card>
+        </div>
+      )}
       <div className="flex-1 flex flex-col md:flex-row max-w-7xl w-full mx-auto min-w-0">
         <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} badges={badges} />
         <main className="flex-1 p-3 sm:p-5 md:p-6 overflow-y-auto w-full min-w-0">
@@ -86,6 +105,7 @@ function Shell() {
 
 export default function App() {
   const { status } = useAuth();
+  if (typeof window !== 'undefined' && window.location.pathname === '/reset-password') return <ResetPasswordPage />;
   if (status === 'loading') return <div className="min-h-screen flex items-center justify-center"><Loading label="Checking session…" /></div>;
   if (status !== 'signedIn') return <SignInPage />;
   return <Shell />;

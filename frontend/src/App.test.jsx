@@ -8,6 +8,9 @@ vi.mock('./auth/AuthContext', () => ({ useAuth: () => auth }));
 vi.mock('./components/LeafletMap', () => ({ default: () => <div data-testid="map" /> }));
 vi.mock('./pages/OverviewPage', () => ({ default: () => <div>overview-page</div> }));
 vi.mock('./pages/AuditPage', () => ({ default: () => <div>audit-page</div> }));
+const sb = vi.hoisted(() => ({ auth: { updateUser: vi.fn(async () => ({ error: null })) } }));
+vi.mock('./lib/supabase', () => ({ supabase: sb, isSupabaseConfigured: true }));
+vi.mock('./pages/ResetPasswordPage', () => ({ default: () => <div>reset-page</div> }));
 vi.mock('./pages/SignInPage', () => ({ default: () => <div>sign-in-page</div> }));
 
 const { api } = await import('./lib/api/client');
@@ -36,5 +39,24 @@ describe('App shell', () => {
     expect(screen.getByLabelText('Operating region')).toHaveValue('');
     await userEvent.click(screen.getByTitle('Sign out'));
     expect(auth.signOut).toHaveBeenCalled();
+  });
+
+  it('routes /reset-password before the auth check', () => {
+    auth.status = 'signedOut';
+    window.history.pushState({}, '', '/reset-password');
+    render(<App />);
+    expect(screen.getByText('reset-page')).toBeInTheDocument();
+    window.history.pushState({}, '', '/');
+    auth.status = 'signedIn';
+  });
+
+  it('lets a signed-in admin change their password', async () => {
+    render(<App />);
+    await userEvent.click(screen.getByTitle('Change password'));
+    await userEvent.type(screen.getByLabelText('New password'), 'brand-new-pass');
+    await userEvent.type(screen.getByLabelText('Confirm password'), 'brand-new-pass');
+    await userEvent.click(screen.getByRole('button', { name: /save password/i }));
+    expect(sb.auth.updateUser).toHaveBeenCalledWith({ password: 'brand-new-pass' });
+    expect(await screen.findByText('Password updated.')).toBeInTheDocument();
   });
 });
