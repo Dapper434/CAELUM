@@ -1,295 +1,107 @@
-# 🩸 CAELUM
-> **Centralized Agent Environment for Lifesaving and Urgent Mobility**  
-> *A Production-Grade Hybrid Multi-Agent System (MAS) for Regional Blood Inventory Optimization, Deterministic Transfer Validation, and Sovereign AI Orchestration.*
+# CAELUM Admin Console
 
-[![Architecture: Hybrid MAS](https://img.shields.io/badge/Architecture-Hybrid_MAS-059669.svg)](#multi-agent-system-architecture)
-[![Safety: Deterministic Math](https://img.shields.io/badge/Safety-Deterministic_Math-D97706.svg)](#deterministic-safety-guarantee)
+Operations console for CAELUM, the regional blood-transfer network. Admins use it to watch
+facilities, stock, requests, donor offers, transfers, couriers, custody, cold chain, forecasts
+and the hash-chained audit log.
 
----
+The console is a static React app. **It talks only to the CAELUM API** (`CAELUM_API`, contract
+`docs/API_CONTRACT.md` v1.2.0) with a Supabase Auth JWT for an `admin` user. It never reads
+or writes Supabase tables directly and never calls the old `backend/`.
 
-## 📑 Table of Contents
-1. [Executive Summary & The Blood Logistics Crisis](#1-executive-summary--the-blood-logistics-crisis)
-2. [The Core Philosophy: Deterministic Safety vs. Single-Shot LLM](#2-the-core-philosophy-deterministic-safety-vs-single-shot-llm)
-3. [System Architecture & The Hybrid MAS](#3-system-architecture--the-hybrid-mas)
-4. [The 8-Step Orchestration Loop](#4-the-8-step-orchestration-loop)
-5. [Tech Stack & Engineering Division](#5-tech-stack--engineering-division)
-6. [Repository Structure](#6-repository-structure)
-7. [Human-in-the-Loop (HITL) Workflow](#7-human-in-the-loop-hitl-workflow)
-8. [Verification & Zero-Hallucination Guarantees](#8-verification--zero-hallucination-guarantees)
+> **`backend/` is deprecated.** The Flask service in `backend/` is kept for reference only and
+> is no longer used by the console. All server logic lives in **CAELUM_API**. Don't add to it.
 
----
+## Features
 
-## 1. Executive Summary & The Blood Logistics Crisis
-
-### The Problem
-Blood is a perishable, non-fungible biological resource with a fragile shelf life (packed red blood cells expire strictly within 35–42 days; platelets within 5–7 days). 
-
-In regional healthcare networks, blood management suffers from a tragic paradox:
-* **Simultaneous Expiration and Depletion:** One county hospital incinerates dozens of expiring blood units while a trauma center 40 km away postpones life-saving surgeries due to acute shortages of the exact same blood group.
-* **Fragmented, Manual Telephony Logistics:** Inter-hospital coordination currently relies on frantic WhatsApp messages, manual phone calls, spreadsheet silos, and reactive panic. 
-* **Regulatory & Administrative Friction:** Emergency blood transfers must adhere to strict clinical SOPs (cross-matching, temperature-controlled cold-chain protocols, regional quota restrictions), creating administrative decision paralysis under time pressure.
-
-### The Solution: CAELUM
-**CAELUM** (*Centralized Agent Environment for Lifesaving and Urgent Mobility*) is a hybrid logistics platform for regional blood transfers. 
-
-CAELUM continuously unifies regional blood inventories, forecasts depletion dates using classical statistical forecasting, deterministically calculates valid transit corridors with strict cold-chain and shelf-life constraints, retrieves relevant hospital transfer policies via vector RAG, and uses an AI Orchestrator to generate clinically sound, legally compliant transfer proposals for immediate human approval.
-
-```
-+-----------------------------------------------------------------------------------+
-|                                CAELUM OBJECTIVES                                  |
-+---------------------+-------------------------------+-----------------------------+
-|  01. ZERO WASTE     |  02. LATENCY COLLAPSE         |  03. ZERO HALLUCINATION     |
-|  Redirect expiring  |  Replace 45-min phone chains  |  Deterministic validation   |
-|  units before cutoff|  with a 3-second optimal match|  guarantees 100% valid units|
-+---------------------+-------------------------------+-----------------------------+
-```
-
----
-
-## 2. The Core Philosophy: Deterministic Safety vs. Single-Shot LLM
-
-Generative AI in healthcare logistics faces a critical risk: **LLMs hallucinate numbers, invent non-existent inventory codes, and struggle with multi-constraint topological arithmetic.**
-
-CAELUM adheres to a strict engineering doctrine:
-
-> **"Never ask an LLM to do arithmetic, shelf-life verification, or database lookups. Use deterministic algorithms for math and safety; use the LLM strictly as a single-shot policy synthesizer and qualitative evaluator."**
-
-| Capability | Deterministic Python Workers | LLM Orchestrator (Llama 3.1 8B) |
+| Section | What it shows | API |
 |---|---|---|
-| **Demand Forecasting** | ✅ Classical Holt-Winters & Moving Averages | ❌ Unreliable for exact quantity projections |
-| **Shelf-Life Math** | ✅ Hard datetime subtractions ($T_{\text{expiry}} - T_{\text{now}}$) | ❌ Prone to temporal calculation drift |
-| **Transit Feasibility** | ✅ Haversine distance, speed limits, cold chain limits | ❌ Cannot guarantee spatial precision |
-| **Inventory Verification**| ✅ Exact match against Postgres primary keys | ❌ Known to hallucinate UUIDs / bag IDs |
-| **Complex Policy Synthesis**| ❌ Brittle when handling conflicting clinical SOPs | ✅ Natural language comprehension of hospital policies |
-| **Multi-Criteria Tradeoff** | ❌ Complex multi-objective utility functions | ✅ Synthesizes clinical urgency, stock stability, & ethics |
+| Overview | Counts for requests, offers, transfers, couriers, alerts; audit chain status; live feed | `/admin/overview`, `/admin/feed` |
+| Live Map | Facilities, active transfer routes and latest courier positions (Leaflet + OSM tiles) | `/admin/map` |
+| Facilities | List by region, detail, contacts editing, inventory with logged corrections, forecast with history, facility audit | `/facilities`, `PATCH /facilities/{id}`, `/inventory`, `/audit?action=inventory.corrected`, `/forecast`, `/forecast/history`, `/facilities/{id}/audit` |
+| Shortage Alerts | Open alerts; run forecast for all facilities; run timeout sweep | `/alerts`, `/forecast/run`, `/admin/jobs/sweep` |
+| Requests | Request state machine (suggested → open → offered → matched → fulfilled), candidates, offers | `/requests/*` |
+| Offers | Offer state machine with hold/accept/decline and expiry countdowns | `/offers/*` |
+| Transfers | Stage timeline, pack/courier-accept deadlines, units, assign courier, cancel; custody (QR status and expiry, seal check, events, photos via signed links), cold-chain readings against bands, live tracking, transfer audit | `/transfers/*`, `/cold-chain/bands` |
+| Couriers | Profiles, licence fields (expired flag), create/edit, recent positions, job history (derived, see gaps) | `/couriers`, `/couriers/{id}/locations`, `/transfers` |
+| Audit Log | Filtered, paged global log and chain verification | `/audit`, `/audit/verify` |
+| System | Root and v1 health, version, signed-in user, bands, decline reasons | `/health`, `/api/v1/health`, `/me` |
 
----
+Known API gaps and how the console handles them: [`docs/CONTRACT_GAPS.md`](docs/CONTRACT_GAPS.md).
 
-## 3. System Architecture & The Hybrid MAS
+## Setup
 
-CAELUM employs an **Orchestrator-Worker Multi-Agent Architecture** built on Python, Flask, and Supabase:
+Requirements: Node 20+ and a running CAELUM API (see its README; locally `python main.py` on
+`http://localhost:5000`).
 
-```
-                                  +---------------------+
-                                  |   NETWORK MANAGER   |
-                                  |  (React 18 Dashboard|
-                                  +----------+----------+
-                                             |
-                                    [1. Run Scan Trigger]
-                                             v
-                           +-----------------------------------+
-                           |        FLASK BACKEND ENGINE       |
-                           |   (Orchestration & State Machine) |
-                           +----+-------------+-------------+--+
-                                |             |             |
-                   +------------+             |             +------------+
-                   |                          |                          |
-                   v                          v                          v
-       +-----------------------+  +-----------------------+  +-----------------------+
-       |   AGENT 1: FORECASTER |  |   AGENT 2: LOGISTICS  |  |     AGENT 3: RAG      |
-       |  Deterministic Python |  |  Deterministic Python |  |   POLICY RETRIEVER    |
-       |  - Holt-Winters Ts    |  |  - Transit matrices   |  |  - NVIDIA Nemotron 1B |
-       |  - Days-of-Cover      |  |  - Shelf-life filter  |  |  - Supabase pgvector  |
-       |  - Shortage Detection |  |  - 3 Valid Options    |  |  - SOPs & Bi-lateral  |
-       +-----------+-----------+  +-----------+-----------+  +-----------+-----------+
-                   |                          |                          |
-                   +------------+             |             +------------+
-                                |             |             |
-                                v             v             v
-                           +-----------------------------------+
-                           |    STRUCTURED CONTEXT PAYLOAD     |
-                           |    (Strict Pydantic JSON Pack)    |
-                           +------------------+----------------+
-                                              |
-                                    [Single-Shot Evaluation]
-                                              v
-                           +-----------------------------------+
-                           |      AGENT 4: ORCHESTRATOR        |
-                           |       Llama 3.1 8B Instruct       |
-                           +------------------+----------------+
-                                              |
-                                    [Structured JSON Proposal]
-                                              v
-                           +-----------------------------------+
-                           |      HARD PYTHON VALIDATOR        |
-                           |  - Cross-checks bag IDs in DB     |
-                           |  - Validates stock availability   |
-                           +------------------+----------------+
-                                              |
-                                    [Validated Action Plan]
-                                              v
-                           +-----------------------------------+
-                           |     HUMAN APPROVAL INTERFACE      |
-                           |  - 1-Click Dispatch Confirmation  |
-                           +-----------------------------------+
+```bash
+cd frontend
+cp .env.example .env.local   # fill in real values; never commit them
+npm install
+npm run dev                  # http://localhost:5173 (allowed by the API's CORS defaults)
 ```
 
-### The 4 Specialized Agents
+Scripts:
 
-#### 1. Agent 1: Forecasting Worker (Deterministic Python)
-* **Role:** Analyzes temporal consumption patterns to compute reliable days-of-cover per blood group ($A^+, A^-, B^+, B^-, AB^+, AB^-, O^+, O^-$).
-* **Algorithm:** Holt-Winters exponential smoothing and rolling weekly demand averages.
-* **Output:** Flagged hospital nodes with projected depletion within 72 hours.
+| Command | Does |
+|---|---|
+| `npm run dev` | Vite dev server on port 5173 |
+| `npm test` | Vitest (jsdom, all API calls mocked) |
+| `npm run coverage` | Vitest with v8 coverage |
+| `npm run build` | Production build into `frontend/dist` |
+| `npm run preview` | Serve the built app locally |
 
-#### 2. Agent 2: Logistics Worker (Deterministic Python)
-* **Role:** Computes transit corridors from potential donor facilities within the regional network.
-* **Constraints Enforced:**
-  $$\text{Transit Time} + \text{Handling Margin} < \text{Remaining Shelf Life}$$
-  $$\text{Donor Stock Remaining} \ge \text{Safety Threshold} \; (D_{\text{post-transfer}} \ge 3 \text{ days})$$
-* **Output:** A strict list of at most 3 mathematically feasible donor nodes with specific verified unit batch IDs.
+## Environment variables
 
-#### 3. Agent 3: RAG Policy Retriever (NVIDIA Nemotron 3.5 Embed + pgvector)
-* **Role:** Embeds emergency shortage context and queries Supabase `pgvector` for governing clinical transfer protocols, regional health authority bylaws, and memorandum-of-understanding (MOU) agreements between hospitals.
-* **Embedding Model:** NVIDIA Nemotron 3.5 Embed 1B.
-* **Output:** Top-k ranked regulatory guidelines relevant to cross-county transport and emergency rationing.
+All are read at build time (Vite only exposes `VITE_*`).
 
-#### 4. Agent 4: The Orchestrator (Llama 3.1 8B Instruct)
-* **Role:** Evaluates the pre-filtered, verified options from Agents 1, 2, and 3 in a **single-shot prompt**.
-* **Reasoning:** Weighs cold-chain transit risk against clinical urgency and hospital tier relations.
-* **Format:** Returns a strictly formatted Pydantic-compliant JSON payload containing the selected donor hospital, unit IDs, routing justification, and risk assessment.
-
----
-
-## 4. The 8-Step Orchestration Loop
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Manager as Network Manager (React UI)
-    participant Flask as Flask Coordinator
-    participant DB as Supabase (Postgres & pgvector)
-    participant Math as Deterministic Workers (Agents 1 & 2)
-    participant RAG as RAG Retriever (Agent 3 + Nemotron)
-    participant LLM as Llama 3.1 8B (Agent 4)
-    participant Val as Python Hard Validator
-
-    Manager->>Flask: 1. Click "Run Scan"
-    Flask->>DB: 2. Query regional stock, expiry dates, and 30-day logs
-    DB-->>Flask: Inventory Snapshot
-    Flask->>Math: 3. Execute Demand & Logistics calculations
-    Note over Math: Calculates days-of-cover.<br/>Filters 3 valid transfer corridors.
-    Math-->>Flask: Valid Source Options & Shortage Vectors
-    Flask->>RAG: 4. Query relevant SOPs for detected shortage
-    RAG->>DB: Vector search on hospital transfer policies
-    DB-->>RAG: Policy chunks
-    RAG-->>Flask: Matched SOP Context
-    Flask->>LLM: 5. Inject Structured JSON Context Payload
-    Note over LLM: Single-Shot Evaluation:<br/>Weighs route efficiency & policy compliance
-    LLM-->>Flask: 6. Proposed Dispatch Recommendation (JSON)
-    Flask->>Val: 7. Validate Proposed Transfer Units against Postgres
-    Note over Val: Ensures bag IDs exist,<br/>are unreserved, and unexpired.
-    Val-->>Flask: Cryptographically/Deterministically Certified
-    Flask-->>Manager: 8. Render Proposal in Human Approval Inbox
-    Manager->>Flask: Click "Approve Transfer" -> Dispatches Courier
-```
-
----
-
-## 5. Tech Stack & Engineering Division
-
-### Complete Stack Breakdown
-
-| Layer | Technology | Justification |
+| Variable | Required | Meaning |
 |---|---|---|
-| **Frontend UI** | **React 18+, Vite, Tailwind CSS** | Ultra-responsive, sub-second client rendering for emergency dispatch interfaces. |
-| **State & Database Client**| **@supabase/supabase-js** | Real-time WebSocket subscriptions to inventory changes and transfer approval events. |
-| **Backend API** | **Python 3.11+, Flask 3** | Lightweight, high-throughput micro-framework natively suited for PyData libraries. |
-| **Data Validation** | **Pydantic v2** | Strict schema enforcement guaranteeing zero invalid JSON structures from the LLM. |
-| **Statistical Forecasting**| **Statsmodels, Pandas** | Holt-Winters exponential smoothing for deterministic blood depletion forecasting. |
-| **Vector Embeddings** | **NVIDIA Nemotron 3.5 Embed 1B** | High-precision medical & operational policy vectorization. |
-| **Vector Storage** | **Supabase pgvector (PostgreSQL)** | Unified SQL relational data and high-dimensional semantic search in one engine. |
-| **AI Orchestration** | **Llama 3.1 8B Instruct** | Optimal balance of reasoning quality, low latency, and single-shot instruction following. |
-| **Hosting & Cloud** | **Vercel (UI) + Render (API)** | Enterprise-grade serverless frontend with dedicated compute for Python workers. |
+| `VITE_API_BASE_URL` | yes (prod) | Origin of the CAELUM API, e.g. `https://api.example.com`. `/api/v1` is added for you; a value already ending in `/api` or `/api/v1` is accepted. Dev builds fall back to `http://localhost:5000` when empty; **production builds have no fallback** and show a "not configured" error. |
+| `VITE_SUPABASE_URL` | yes for password sign-in | Supabase project URL, used for Auth only. |
+| `VITE_SUPABASE_ANON_KEY` | yes for password sign-in | Supabase anon (public) key, used for Auth only. |
+| `VITE_DEMO_MODE` | no | `true` shows "Sign in as demo admin", which calls `POST /auth/demo-login` for `admin@caelum.demo`. Leave `false` for production. |
 
----
+## Deploying to Vercel
 
-## 6. Repository Structure
+1. Import the repo, set **Root Directory** to `frontend`. Framework preset: Vite
+   (build `npm run build`, output `dist`).
+2. In Project → Settings → Environment Variables, set for Production (and Preview as needed):
+   - `VITE_API_BASE_URL` = the deployed CAELUM API origin
+   - `VITE_SUPABASE_URL` = the Supabase project URL
+   - `VITE_SUPABASE_ANON_KEY` = the Supabase anon key
+   - `VITE_DEMO_MODE` = `false` (or `true` on a demo deployment only)
+3. Add the console's Vercel domain to the API's `CORS_ORIGINS`.
+4. Redeploy after changing any variable; values are baked in at build time.
 
-```text
-caelum/
-├── backend/                        # [Cursor Domain] Backend & Multi-Agent Core
-│   ├── app/
-│   │   ├── __init__.py             # Flask app factory & CORS configuration
-│   │   ├── routes.py               # REST API endpoints (/api/scan, /api/approve)
-│   │   ├── schemas.py              # Pydantic models for inputs, outputs, and LLM payloads
-│   │   └── services/
-│   │       ├── metrics.py          # Real-time network statistics aggregator
-│   │       ├── forecast_worker.py  # Agent 1: Holt-Winters statistical demand predictor
-│   │       ├── logistics_worker.py # Agent 2: Travel-time & shelf-life corridor calculator
-│   │       ├── rag_retriever.py    # Agent 3: NVIDIA Nemotron + pgvector SOP search
-│   │       ├── orchestrator.py     # Agent 4: Single-shot Llama 3.1 prompt executor
-│   │       ├── scanner.py          # Orchestration pipeline supervisor
-│   │       └── validator.py        # Hard validation against Postgres state
-│   ├── seed.py                     # Mock hospital data generator (Nairobi / Nakuru / Eldoret)
-│   ├── requirements.txt            # Python dependencies
-│   └── .env.example                # Backend environment configuration
-│
-├── frontend/                       # React 18+ user interface
-│   ├── src/
-│   │   ├── assets/                 # SVGs, icons, and branding collateral
-│   │   ├── components/
-│   │   │   ├── Navbar.jsx          # Network status, live time, hospital switch
-│   │   │   ├── NetworkDashboard.jsx# Real-time regional blood map & supply overview
-│   │   │   ├── AlertsPanel.jsx     # Active shortages, depletion countdowns, urgency ranks
-│   │   │   ├── ApprovalInbox.jsx   # HITL interface: proposal card, rationale, 1-click accept
-│   │   │   └── TransferHistory.jsx # Audit trail of completed and in-transit units
-│   │   ├── hooks/
-│   │   │   └── useCaelum.js        # Supabase realtime & REST query hooks
-│   │   ├── lib/
-│   │   │   └── supabase.js         # Supabase client singleton
-│   │   ├── App.jsx                 # Root component layout
-│   │   ├── index.css               # Tailwind design tokens & custom utility classes
-│   │   └── main.jsx                # Vite bootstrap
-│   ├── public/                     # Static assets
-│   ├── package.json                # Frontend dependencies
-│   ├── tailwind.config.js          # Custom brand colors & typography tokens
-│   └── vite.config.js              # Vite bundler configuration
-│
-├── supabase/                       # Database Schemas & Migrations
-│   ├── schema.sql                  # Hospitals, blood_inventory, transfers, and audit tables
-│   └── policies.sql                # Row Level Security (RLS) & pgvector indices
-│
-├── docs/                           # Documentation & Specifications
-│   ├── CAELUM_System_Spec.pdf      # Executive Technical Specification (Warm Beige & Cobalt Blue)
-│   └── architecture_diagram.png    # High-resolution multi-agent system architecture
-└── README.md                       # Public system documentation
-```
-
----
-
-## 7. Human-in-the-Loop (HITL) Workflow
-
-In critical medical infrastructure, **no AI system should autonomously dispatch physiological assets without clinical oversight.**
-
-CAELUM implements a strict **Human-in-the-Loop (HITL)** governance model:
-
-1. **Autonomous Discovery, Supervised Execution:**  
-   The multi-agent system conducts background scans, performs demand math, filters corridors, and ranks options continuously.
-2. **Transparent Rationale Card:**  
-   When a transfer proposal is generated, the React frontend renders a dedicated **Approval Card** highlighting:
-   * **Source Hospital vs. Recipient Hospital** (with distance and ETA).
-   * **Exact Bag IDs & Blood Group** (with individual expiry timestamps).
-   * **Mathematical Proof:** Remaining days-of-cover at the donor facility post-transfer.
-   * **AI Rationale:** Why this specific donor was chosen over alternative candidates (e.g., *"Hospital B is 8 km closer, but releasing 4 units of $O^-$ would drop its reserve below the safe 48-hour trauma quota. Hospital C has surplus units expiring in 72 hours, matching transfer criteria."*).
-   * **Policy Compliance Tag:** Matched regional health protocol reference.
-3. **1-Click Clinical Override:**  
-   The Network Manager can accept with one click, request an alternate corridor, or reject the recommendation with clinical feedback.
-
----
-
-## 8. Verification & Zero-Hallucination Guarantees
-
-CAELUM achieves an absolute zero-hallucination guarantee through **Tripartite Defense**:
+## Architecture
 
 ```
-[Layer 1: Input Filtering]   Deterministic Workers pass ONLY existing, valid candidate IDs.
-             |
-             v
-[Layer 2: Schema Constraining] Pydantic JSON schema forces LLM to select from provided IDs.
-             |
-             v
-[Layer 3: Hard Validation]   Python Validator queries Postgres to confirm unit status = 'available'
-                             and hospital_id = selected_source before any record is updated.
+frontend/src
+├── main.jsx              AuthProvider + App
+├── App.jsx               Auth gate and console shell (navbar, sidebar, sections)
+├── auth/AuthContext.jsx  Supabase password sign-in or demo login; checks /me role=admin; signs out on 401
+├── lib/
+│   ├── config.js         Reads VITE_* (no localhost fallback outside dev)
+│   ├── supabase.js       Supabase client for Auth only (null when not configured)
+│   ├── api/client.js     fetch wrapper: base URL, bearer token, {data, meta} envelope, ApiError, 401 hook
+│   ├── api/*.js          One module per API area (facilities, inventory, requests, offers, transfers, custody, couriers, admin, …)
+│   └── format.js         Times shown in Africa/Nairobi (EAT)
+├── hooks/                useApiData (load, poll, reload), useNow, useFacilityNames
+├── components/           Shared UI, Leaflet map, audit list, facility and transfer panels
+└── pages/                One page per section
 ```
 
-If the LLM outputs a unit ID not found in the pre-filtered candidate pool, the transaction is **instantly rejected**, an alert is logged to the system audit trail, and the deterministic fallback (Option #1 calculated by Agent 2) is promoted to the Human Approval Inbox.
+- **Auth.** Password sign-in goes through Supabase Auth; the access token is sent as
+  `Authorization: Bearer …`. Demo sign-in stores the API-issued token in `sessionStorage`.
+  Either way the console calls `/me` and only lets `role: admin` in. Any `401` from the API
+  signs the user out with a "session expired" message.
+- **Errors.** API errors (`{error:{code,message,details}}`) become `ApiError` with `status`,
+  `code`, `details` and, for `429`, `retryAfter`. Network failures surface as `network_error`.
+- **Tests.** `vitest` with Testing Library; `fetch` and the API client are mocked, so tests
+  never reach a live host.
+
+## Repository layout
+
+- `frontend/` — this console.
+- `backend/` — **deprecated** Flask service, kept for reference. Use CAELUM_API instead.
+- `docs/` — contract gaps and project notes.
