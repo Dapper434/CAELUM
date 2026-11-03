@@ -14,3 +14,13 @@ console: each gap is either left out or worked around in the open, as described.
 | 7 | `POST /auth/demo-login` (and `/auth/demo-users`) return `404` on the live API (v1.2.3); demo accounts are now real Supabase users. Contract §5.1 still lists them. | Removed. Sign-in is always Supabase `signInWithPassword`; the access token goes to the API as `Bearer`. With `VITE_DEMO_MODE=true` the sign-in page can prefill `admin@caelum.demo`, never a password. | Update the contract to drop demo-login for deployed stores. |
 | 8 | Live API sends no `Access-Control-Allow-Origin` header (checked on 3 Nov 2026 for `http://localhost:5173` and a Vercel origin, on both `GET` and preflight). | Nothing the console can do: browsers will block its API calls until `CORS_ORIGINS` on Render includes the console's origin. Server-side checks (curl/node) work. | Set `CORS_ORIGINS` on Render to the Vercel domain(s) and `http://localhost:5173`. |
 
+
+## Admin user management (not live yet)
+
+The console's Users page targets these endpoints, which the API does not serve yet. Until they ship, the page shows the API's error (likely 404).
+
+- `GET /api/v1/admin/users`: assumed to page with `limit` and `offset` query params (page size 50) and to return the usual `{data, meta}` envelope. The client reads `meta.has_more`, or `meta.total` with `meta.offset`, and otherwise treats a full page as "there may be more". It also sends an optional `role` filter. Rows are assumed to carry `user_id, email, role, full_name, facility_id, facility_name, courier_id, last_sign_in_at, confirmed`. Please confirm or tell us the real paging params.
+- `POST /api/v1/admin/users/invite`: body `{email, role, full_name, facility_id?, courier_id?}`. The console sends `facility_id` only for donor and recipient, and `courier_id` only for courier. Returns 201; 409 means the email is already registered; 400 errors should use the standard `{error: {code, message}}` shape, because the console shows `message` as is.
+- `POST /api/v1/admin/users/{id}/resend-invite` and `POST /api/v1/admin/users/{id}/disable`: assumed to take an empty JSON body and to return 2xx. The console reloads the list afterwards and doesn't depend on the response body.
+- Invites and password resets must redirect to `<console origin>/reset-password`, so that URL has to be in Supabase Auth's allowed redirect URLs, and the invite should set `redirectTo` to it.
+- A non-admin who sets a password through an invite link lands on the admin console and gets the "no admin role" message. Donor, recipient and courier users need their own app's reset page, or a role-aware redirect.
