@@ -96,3 +96,20 @@ describe('api client', () => {
     expect(fetchImpl.mock.calls[0][1].headers.Authorization).toBeUndefined();
   });
 });
+
+describe('placeholder values', () => {
+  const ok = { ok: true, status: 200, headers: { get: () => null }, text: async () => '{"data":{}}' };
+  it('leaves out null, undefined, empty and "null"/"undefined" strings from queries and bodies', async () => {
+    const { createApiClient, isPlaceholder } = await import('./client');
+    const fetchImpl = vi.fn(async () => ok);
+    const client = createApiClient({ baseUrl: 'https://x/api/v1', fetchImpl });
+    await client.get('/forecast', { query: { facility_id: 'f1', blood_group: 'null', product_type: 'undefined', a: '', b: null, c: undefined, d: ' ', n: 0, f: false } });
+    expect(fetchImpl.mock.calls[0][0]).toBe('https://x/api/v1/forecast?facility_id=f1&n=0&f=false');
+    await client.post('/forecast/run', { facility_id: 'undefined', note: '', nested: { x: 'NULL', y: 'ok' }, list: ['a'] });
+    expect(JSON.parse(fetchImpl.mock.calls[1][1].body)).toEqual({ nested: { y: 'ok' }, list: ['a'] });
+    await client.patch('/facilities/f1', { address: null, contact_name: 'null' });
+    expect(JSON.parse(fetchImpl.mock.calls[2][1].body)).toEqual({ address: null });
+    expect(isPlaceholder(0)).toBe(false);
+    expect(isPlaceholder(NaN)).toBe(true);
+  });
+});

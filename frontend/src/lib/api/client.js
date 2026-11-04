@@ -17,11 +17,37 @@ export class ApiError extends Error {
   }
 }
 
+/** Values the API rejects as placeholders; such params are left out instead. */
+export function isPlaceholder(value) {
+  if (value === undefined || value === null) return true;
+  if (typeof value === 'number' && Number.isNaN(value)) return true;
+  if (typeof value !== 'string') return false;
+  const v = value.trim().toLowerCase();
+  return v === '' || v === 'null' || v === 'undefined';
+}
+
+/**
+ * Drops undefined, '', 'null' and 'undefined' from JSON bodies (recursively in
+ * plain objects). A real JSON null is kept: PATCH uses it to clear a field.
+ */
+export function cleanBody(value) {
+  if (Array.isArray(value)) return value.map(cleanBody);
+  if (value && typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype) {
+    const out = {};
+    for (const [key, v] of Object.entries(value)) {
+      if (v !== null && isPlaceholder(v)) continue;
+      out[key] = cleanBody(v);
+    }
+    return out;
+  }
+  return value;
+}
+
 function buildQuery(query) {
   if (!query) return '';
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(query)) {
-    if (value === undefined || value === null || value === '') continue;
+    if (isPlaceholder(value)) continue;
     params.append(key, String(value));
   }
   const text = params.toString();
@@ -51,7 +77,7 @@ export function createApiClient({
       response = await doFetch(url, {
         method,
         headers,
-        body: body === undefined ? undefined : JSON.stringify(body),
+        body: body === undefined ? undefined : JSON.stringify(cleanBody(body)),
         signal,
       });
     } catch (err) {
