@@ -68,3 +68,13 @@ describe('Forgot password', () => {
     expect(screen.queryByText(/not found|offline/i)).not.toBeInTheDocument();
   });
 });
+
+describe('SignInPage password toggle', () => {
+  it('shows and hides the password', async () => {
+    const supabase = { auth: { getSession: vi.fn(async () => ({ data: { session: null } })), signOut: vi.fn() } };
+    render(<AuthProvider supabase={supabase}><SignInPage config={{ apiBaseUrl: 'x', demoMode: false }} passwordEnabled supabase={supabase} /></AuthProvider>);
+    expect(screen.getByLabelText('Password')).toHaveAttribute('type', 'password');
+    await userEvent.click(screen.getByRole('button', { name: 'Show password' }));
+    expect(screen.getByLabelText('Password')).toHaveAttribute('type', 'text');
+  });
+});

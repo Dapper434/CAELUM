@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { KeyRound } from 'lucide-react';
+import PasswordInput from './PasswordInput';
 import { Button, inputClass } from './ui';
 import { validateNewPassword } from '../lib/password';
 
@@ -31,10 +32,10 @@ export default function PasswordForm({ supabase, onDone, submitLabel = 'Save pas
   return (
     <form aria-label={name} className="space-y-3" onSubmit={submit} noValidate>
       <label className={label}>New password
-        <input className={`${inputClass} mt-1`} type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <PasswordInput autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
       </label>
       <label className={label}>Confirm password
-        <input className={`${inputClass} mt-1`} type="password" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+        <PasswordInput autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
       </label>
       {error && <p role="alert" className="text-xs text-red-700">{error}</p>}
       <Button type="submit" className="w-full" disabled={busy}><KeyRound className="w-3.5 h-3.5" /> {submitLabel}</Button>

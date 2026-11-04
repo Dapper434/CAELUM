@@ -51,4 +51,14 @@ describe('ResetPasswordPage', () => {
     expect(await screen.findByText(/invalid or has expired/i)).toBeInTheDocument();
     expect(screen.queryByLabelText('New password')).not.toBeInTheDocument();
   });
+
+  it('has a toggle on both password fields', async () => {
+    render(<ResetPasswordPage supabase={fakeSupabase({ session: { access_token: 't' } })} waitMs={10000} />);
+    await screen.findByLabelText('New password');
+    const toggles = screen.getAllByRole('button', { name: 'Show password' });
+    expect(toggles).toHaveLength(2);
+    await userEvent.click(toggles[1]);
+    expect(screen.getByLabelText('Confirm password')).toHaveAttribute('type', 'text');
+    expect(screen.getByLabelText('New password')).toHaveAttribute('type', 'password');
+  });
 });

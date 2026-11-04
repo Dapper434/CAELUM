@@ -3,6 +3,7 @@ import { Droplet, LogIn, FlaskConical } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { config as defaultConfig } from '../lib/config';
 import { isSupabaseConfigured, supabase as defaultSupabase } from '../lib/supabase';
+import PasswordInput from '../components/PasswordInput';
 import { Button, Card, inputClass } from '../components/ui';
 
 // Demo accounts on the live Supabase project. Only the email is prefilled; passwords are never embedded.
@@ -77,7 +78,7 @@ export default function SignInPage({ config = defaultConfig, passwordEnabled = i
             </label>
             <label className="block text-xs font-semibold text-slate-600">
               Password
-              <input className={`${inputClass} mt-1`} type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <PasswordInput autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
             </label>
             <Button type="submit" className="w-full" disabled={busy || status === 'loading'}>
               <LogIn className="w-3.5 h-3.5" /> Sign in
