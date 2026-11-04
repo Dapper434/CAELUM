@@ -89,7 +89,7 @@ function Shell() {
           {activeTab === 'overview' && <OverviewPage />}
           {activeTab === 'map' && <NetworkMapPage />}
           {activeTab === 'facilities' && <FacilitiesPage regionCode={regionCode} />}
-          {activeTab === 'alerts' && <AlertsPage />}
+          {activeTab === 'alerts' && <AlertsPage onForecastDone={overview.reload} />}
           {activeTab === 'requests' && <RequestsPage />}
           {activeTab === 'offers' && <OffersPage />}
           {activeTab === 'transfers' && <TransfersPage />}
