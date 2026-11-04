@@ -23,3 +23,9 @@ console: each gap is either left out or worked around in the open, as described.
 - A courier invite without `courier_id` is valid, because the server creates and links a courier row.
 - The API sets each invite's redirect per role on the server: admin to caelum-console, donor and recipient to caelum-facility, courier to caelum-courier, each at `/reset-password`. The console sends no `redirect_to`. The console's forgot-password link uses `<origin>/reset-password`, so `https://caelum-console.vercel.app/reset-password` must be in Supabase Auth's allowed redirect URLs.
 - Still open: whether these endpoints are deployed on Render. Until they are, the page shows the API's error.
+
+## Forecast runs (contract v1.4.0)
+
+- `POST /forecast/run` is async. The console treats `202` (new job) and `200` (same-scope job already queued or running) the same way: it keeps `job_id` and polls `GET /forecast/runs/{job_id}` every 3 s, showing "x/y facilities", until the job succeeds or fails. A `404` while polling stops with a message. On success it reloads the alerts list and the overview counts; the Requests page loads fresh when opened.
+- Job ids aren't saved across a page reload, so if the admin reloads mid-run the progress is lost. Clicking Run again returns the same job (`200`), so polling picks it up again.
+- The shared client leaves out `undefined`, `null`, `''`, `'null'` and `'undefined'` from query strings, and the same strings from JSON bodies. A real JSON `null` in a body is kept, because `PATCH /facilities/{id}` uses it to clear a contact field. The contract also lists `"none"` and `"nan"` as placeholders; the client doesn't strip those strings, because they could be real text in a free-text field.
