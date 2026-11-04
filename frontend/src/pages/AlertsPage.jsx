@@ -29,6 +29,7 @@ export default function AlertsPage({ onForecastDone }) {
   const [busy, setBusy] = useState(null);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const facilityLabel = (id) => name(id) === `${(id || '').slice(0, 8)}…` ? (id || 'Unknown facility') : name(id);
   const forecast = useForecastRun({ onSucceeded: (job) => { alerts.reload(); onForecastDone?.(job); } });
 
   const run = async (kind) => {
@@ -48,6 +49,16 @@ export default function AlertsPage({ onForecastDone }) {
       </PageHeader>
       {forecastStatus(forecast.run) && <Card role="status" className="p-3 text-xs text-slate-700 dark:text-slate-200">{forecastStatus(forecast.run)}</Card>}
       {forecast.run?.status === 'failed' && <ErrorNote error={{ code: 'forecast_failed', message: forecast.run.error || 'The forecast run failed.' }} />}
+      {forecast.run?.status === 'succeeded' && (forecast.run.result?.errors || []).length > 0 && (
+        <div role="alert" className="p-3 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:border-amber-900 dark:text-amber-200 text-xs">
+          <div className="font-bold">Some facilities failed in this run; the rest finished.</div>
+          <ul className="mt-1 list-disc pl-4">
+            {forecast.run.result.errors.map((e, i) => (
+              <li key={e.facility_id || i}><span className="font-semibold">{facilityLabel(e.facility_id)}</span>{e.error ? `: ${e.error}` : ''}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       <ErrorNote error={forecast.error} />
       {result && <Card className="p-3 text-xs text-slate-700 dark:text-slate-200">{result}</Card>}
       <ErrorNote error={error || alerts.error} onRetry={alerts.reload} />

@@ -20,6 +20,7 @@ function mockGet(runs) {
   const queue = [...runs];
   return vi.spyOn(api, 'get').mockImplementation(async (path) => {
     if (path === '/alerts') return [alert];
+    if (path === '/facilities') return [{ id: 'f1', name: 'Kenyatta National' }];
     if (path === '/forecast/runs/j1') {
       const next = queue.shift();
       if (next instanceof Error) throw next;
@@ -114,5 +115,31 @@ describe('AlertsPage forecast run', () => {
     render(<AlertsPage />);
     await user.click(screen.getByRole('button', { name: /timeout sweep/i }));
     expect(await screen.findByText(/2 courier assignments timed out/)).toBeInTheDocument();
+  });
+
+  it('warns about facilities that failed in a succeeded run', async () => {
+    mockGet([{ ...done, result: { ...done.result, errors: [{ facility_id: 'f1', error: 'no stock rows' }, { facility_id: 'f9-unknown', error: 'timeout' }] } }]);
+    vi.spyOn(api, 'post').mockResolvedValue(job('queued'));
+    render(<AlertsPage />);
+    await screen.findByText('0.8');
+    await user.click(button());
+    await tick();
+    expect(screen.getByText(/Forecast finished/)).toBeInTheDocument();
+    expect(screen.getByText(/Some facilities failed/)).toBeInTheDocument();
+    expect(screen.getByText('Kenyatta National', { selector: 'span' })).toBeInTheDocument();
+    expect(screen.getByText(/no stock rows/)).toBeInTheDocument();
+    expect(screen.getByText('f9-unknown')).toBeInTheDocument();
+  });
+
+  it.each([undefined, null, []])('shows no warning when errors is %s', async (errors) => {
+    const result = { ...done.result };
+    if (errors !== undefined) result.errors = errors;
+    mockGet([{ ...done, result }]);
+    vi.spyOn(api, 'post').mockResolvedValue(job('queued'));
+    render(<AlertsPage />);
+    await user.click(button());
+    await tick();
+    expect(screen.getByText(/Forecast finished/)).toBeInTheDocument();
+    expect(screen.queryByText(/Some facilities failed/)).not.toBeInTheDocument();
   });
 });
