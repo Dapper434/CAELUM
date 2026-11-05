@@ -25,7 +25,7 @@ describe('couriers and admin api', () => {
     await listAudit({ action: 'transfer.packed' });
     await verifyAudit();
     expect(get.mock.calls[0]).toEqual(['/couriers/c1/locations', { query: { limit: 5 } }]);
-    expect(getList.mock.calls[0][1].query).toMatchObject({ action: 'transfer.packed', limit: 100 });
+    expect(getList.mock.calls[0][1].query).toMatchObject({ action: 'transfer.packed', limit: 50 });
     expect(get.mock.calls[1][0]).toBe('/audit/verify');
   });
 });
