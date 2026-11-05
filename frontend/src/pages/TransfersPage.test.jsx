@@ -34,7 +34,7 @@ describe('TransfersPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Assign courier' }));
     await waitFor(() => expect(post).toHaveBeenCalledWith('/transfers/t1/assign-courier', { courier_id: 'c2' }));
     await userEvent.click(screen.getByRole('tab', { name: 'audit' }));
-    expect(await screen.findByText('transfer.packed')).toBeInTheDocument();
+    expect(await screen.findByText('Transfer packed')).toBeInTheDocument();
     expect(get).toHaveBeenCalledWith('/couriers', { query: { status: 'available' } });
   });
 

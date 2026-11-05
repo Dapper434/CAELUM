@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
-import { ShieldCheck, ShieldAlert } from 'lucide-react';
-import { listAudit, verifyAudit } from '../lib/api/admin';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Download, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { listAudit, verifyAudit, getAuditSummary, exportAuditCsv } from '../lib/api/admin';
+import { listFacilities } from '../lib/api/facilities';
 import { useApiData } from '../hooks/useApiData';
-import { Button, Card, ErrorNote, Field, Loading, PageHeader, inputClass } from '../components/ui';
+import { Button, Card, ErrorNote, Field, Loading, PageHeader, Pill, inputClass } from '../components/ui';
 import AuditList from '../components/AuditList';
 import { shortHash } from '../lib/format';
+import { actionLabel, categoryLabel } from '../lib/auditLabels';
 
-const PAGE = 25;
+const PAGE = 50;
 
 export function ChainVerify() {
-  const { data, error, loading, reload } = useApiData(verifyAudit, []);
+  const { data, error, loading, reload } = useApiData(() => verifyAudit(false), []);
   const ok = data?.valid;
   return (
     <Card className="p-4 space-y-2">
@@ -32,46 +34,176 @@ export function ChainVerify() {
   );
 }
 
+function SummaryStrip({ summary, loading }) {
+  if (loading && !summary) return <Card className="p-3 text-xs text-slate-500">Loading summary…</Card>;
+  if (!summary) return null;
+  const cats = Object.entries(summary.by_category || {});
+  return (
+    <Card className="p-4 space-y-2">
+      <div className="flex flex-wrap items-center gap-3 text-xs">
+        <span className="font-bold text-slate-800 dark:text-slate-100">Last {summary.window}: {summary.total} events</span>
+        <Pill tone={summary.important ? 'red' : 'green'}>{summary.important} important</Pill>
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {cats.map(([cat, n]) => (
+          <span key={cat} className="text-[11px] px-2 py-0.5 rounded-full bg-bg-inset dark:bg-slate-800 border border-border-warm dark:border-slate-700">
+            {categoryLabel(cat)} · {n}
+          </span>
+        ))}
+      </div>
+      {summary.top_actions?.length > 0 && (
+        <div className="text-[11px] text-slate-500 truncate">
+          Top: {summary.top_actions.slice(0, 5).map((t) => `${actionLabel(t.action)} (${t.count})`).join(' · ')}
+        </div>
+      )}
+    </Card>
+  );
+}
+
 /**
- * Global audit log. The API returns newest first with at most 500 entries and has
- * no before_seq on /audit (see docs/CONTRACT_GAPS.md), so we fetch up to `limit` and page in the browser.
+ * Global audit log. Server-paged with before_seq; important-first by default.
  */
 export default function AuditPage() {
-  const [filters, setFilters] = useState({ entityType: '', entityId: '', action: '' });
-  const [applied, setApplied] = useState(filters);
-  const [limit, setLimit] = useState(200);
-  const [page, setPage] = useState(0);
-  const { data, error, loading, reload } = useApiData(
-    () => listAudit({ entityType: applied.entityType || undefined, entityId: applied.entityId || undefined, action: applied.action || undefined, limit }),
-    [applied, limit],
-  );
-  const entries = data?.data || [];
-  const pages = Math.max(1, Math.ceil(entries.length / PAGE));
-  const shown = entries.slice(page * PAGE, page * PAGE + PAGE);
+  const facilities = useApiData(() => listFacilities(), []);
+  const [filters, setFilters] = useState({
+    entityType: '', entityId: '', action: '', actorRole: '', facilityId: '', q: '', window: '7d',
+  });
+  const [importantOnly, setImportantOnly] = useState(true);
+  const [entries, setEntries] = useState([]);
+  const [nextBefore, setNextBefore] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [summary, setSummary] = useState(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+
+  const appliedOpts = useCallback((beforeSeq) => ({
+    entityType: filters.entityType || undefined,
+    entityId: filters.entityId || undefined,
+    action: filters.action || undefined,
+    actorRole: filters.actorRole || undefined,
+    facilityId: filters.facilityId || undefined,
+    q: filters.q || undefined,
+    window: filters.action || filters.q || filters.entityId ? undefined : (filters.window || undefined),
+    important: importantOnly,
+    limit: PAGE,
+    beforeSeq,
+  }), [filters, importantOnly]);
+
+  const loadSummary = useCallback(async () => {
+    setSummaryLoading(true);
+    try {
+      const s = await getAuditSummary({
+        window: filters.window || '7d',
+        facilityId: filters.facilityId || undefined,
+      });
+      setSummary(s);
+    } catch (err) {
+      setSummary(null);
+    } finally {
+      setSummaryLoading(false);
+    }
+  }, [filters.window, filters.facilityId]);
+
+  const load = useCallback(async (beforeSeq) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, meta } = await listAudit(appliedOpts(beforeSeq));
+      setEntries((prev) => {
+        const page = data || [];
+        if (!beforeSeq) return page;
+        const seen = new Set(prev.map((e) => e.seq));
+        return [...prev, ...page.filter((e) => !seen.has(e.seq))];
+      });
+      setNextBefore(meta?.next_before_seq ?? null);
+    } catch (err) {
+      setError(err);
+      if (!beforeSeq) setEntries([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [appliedOpts]);
+
+  useEffect(() => { load(); loadSummary(); }, [importantOnly]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const apply = (e) => {
+    e?.preventDefault?.();
+    load();
+    loadSummary();
+  };
+
   const set = (k) => (e) => setFilters((f) => ({ ...f, [k]: e.target.value }));
+
+  const onExport = async () => {
+    setExporting(true);
+    setError(null);
+    try {
+      const blob = await exportAuditCsv({ ...appliedOpts(), limit: 2000, beforeSeq: undefined });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'caelum-audit.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setExporting(false);
+    }
+  };
 
   return (
     <div className="space-y-4">
-      <PageHeader title="Audit log" subtitle="Append-only, hash-chained record of every change." onRefresh={reload} loading={loading} />
+      <PageHeader
+        title="Audit log"
+        subtitle="Every change, newest first. Important events are shown by default."
+        onRefresh={() => { load(); loadSummary(); }}
+        loading={loading}
+      >
+        <Button variant="ghost" onClick={onExport} disabled={exporting}>
+          <Download className="w-3.5 h-3.5" /> {exporting ? 'Exporting…' : 'Export CSV'}
+        </Button>
+      </PageHeader>
       <ChainVerify />
+      <SummaryStrip summary={summary} loading={summaryLoading} />
       <Card className="p-4 space-y-3">
-        <form className="flex flex-wrap gap-2 items-end" onSubmit={(e) => { e.preventDefault(); setPage(0); setApplied(filters); }}>
-          <input aria-label="Entity type" placeholder="Entity type (e.g. transfer)" className={`${inputClass} w-44`} value={filters.entityType} onChange={set('entityType')} />
-          <input aria-label="Entity id" placeholder="Entity id" className={`${inputClass} w-56`} value={filters.entityId} onChange={set('entityId')} />
-          <input aria-label="Action" placeholder="Action (e.g. offer.accepted)" className={`${inputClass} w-48`} value={filters.action} onChange={set('action')} />
-          <select aria-label="Fetch limit" className={`${inputClass} w-28`} value={limit} onChange={(e) => { setPage(0); setLimit(Number(e.target.value)); }}>
-            {[100, 200, 500].map((n) => <option key={n} value={n}>Last {n}</option>)}
+        <form className="flex flex-wrap gap-2 items-end" onSubmit={apply}>
+          <label className="text-xs flex items-center gap-1.5 text-slate-700 dark:text-slate-200 pb-2">
+            <input type="checkbox" checked={importantOnly} onChange={(e) => setImportantOnly(e.target.checked)} />
+            Important only
+          </label>
+          <select aria-label="Window" className={`${inputClass} w-28`} value={filters.window} onChange={set('window')}>
+            <option value="1d">Last day</option>
+            <option value="7d">Last 7 days</option>
+            <option value="30d">Last 30 days</option>
+            <option value="">Any time</option>
           </select>
+          <select aria-label="Facility" className={`${inputClass} w-56`} value={filters.facilityId} onChange={set('facilityId')}>
+            <option value="">All facilities</option>
+            {(facilities.data || []).map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
+          </select>
+          <select aria-label="Actor role" className={`${inputClass} w-36`} value={filters.actorRole} onChange={set('actorRole')}>
+            <option value="">Any actor</option>
+            {['admin', 'facility', 'courier', 'system'].map((r) => <option key={r} value={r}>{r}</option>)}
+          </select>
+          <input aria-label="Action" placeholder="Action (e.g. offer.accepted)" className={`${inputClass} w-48`} value={filters.action} onChange={set('action')} />
+          <input aria-label="Search" placeholder="Search…" className={`${inputClass} w-40`} value={filters.q} onChange={set('q')} />
           <Button type="submit">Filter</Button>
         </form>
-        <ErrorNote error={error} onRetry={reload} />
-        {loading && !data ? <Loading /> : <AuditList entries={shown} />}
+        <ErrorNote error={error} onRetry={() => load()} />
+        {loading && entries.length === 0 ? <Loading /> : (
+          <AuditList
+            entries={entries}
+            empty={importantOnly ? 'No important events in this window. Turn off “Important only” to see everything.' : 'No audit entries.'}
+          />
+        )}
         <div className="flex items-center justify-between text-xs text-slate-500">
-          <span>{entries.length} entries{entries.length >= limit ? ` (newest ${limit} only)` : ''}</span>
+          <span>{entries.length} shown{nextBefore != null ? ' · more available' : ''}</span>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>Newer</Button>
-            <span>Page {page + 1} / {pages}</span>
-            <Button variant="ghost" disabled={page + 1 >= pages} onClick={() => setPage((p) => p + 1)}>Older</Button>
+            {nextBefore != null && (
+              <Button variant="ghost" disabled={loading} onClick={() => load(nextBefore)}>Load older</Button>
+            )}
           </div>
         </div>
       </Card>

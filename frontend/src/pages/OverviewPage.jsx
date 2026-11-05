@@ -4,6 +4,7 @@ import { getOverview, getFeed, runSweep } from '../lib/api/admin';
 import { useApiData } from '../hooks/useApiData';
 import { Button, Card, ErrorNote, Loading, PageHeader, Pill } from '../components/ui';
 import { formatTime, humanize, shortHash } from '../lib/format';
+import { actionLabel } from '../lib/auditLabels';
 
 function Kpi({ label, value, icon: Icon, tone = 'text-slate-900 dark:text-slate-100', note }) {
   return (
@@ -105,7 +106,7 @@ export default function OverviewPage() {
           {(feed.data || []).map((e) => (
             <li key={e.id || e.seq} className="py-1.5 flex items-center gap-3 text-xs">
               <span className="font-mono text-slate-400 w-12">#{e.seq}</span>
-              <span className="font-semibold text-slate-800 dark:text-slate-100">{e.action}</span>
+              <span className="font-semibold text-slate-800 dark:text-slate-100" title={e.action}>{actionLabel(e.action)}</span>
               <span className="text-slate-500">{e.actor_role}</span>
               <span className="ml-auto text-slate-400">{formatTime(e.at)}</span>
             </li>

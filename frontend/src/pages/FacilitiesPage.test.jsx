@@ -22,9 +22,9 @@ describe('FacilitiesPage', () => {
     expect(await screen.findByText(/MFL 13023/)).toBeInTheDocument();
     expect(screen.getByDisplayValue('Upper Hill')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('tab', { name: 'Audit' }));
-    expect(await screen.findByText('facility.contact_updated')).toBeInTheDocument();
+    expect(await screen.findByText('Facility contact updated')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: /older entries/i }));
-    expect(await screen.findByText('inventory.added')).toBeInTheDocument();
+    expect(await screen.findByText('Stock added')).toBeInTheDocument();
     expect(getList.mock.calls[1][1].query.before_seq).toBe(5);
     expect(screen.queryByRole('button', { name: /older entries/i })).not.toBeInTheDocument();
   });

@@ -1,24 +1,54 @@
 import React from 'react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { api } from '../lib/api/client';
+import * as admin from '../lib/api/admin';
+import * as facilities from '../lib/api/facilities';
 import AuditPage from './AuditPage';
 
-const entries = Array.from({ length: 30 }, (_, i) => ({ seq: 30 - i, action: `act.${30 - i}`, actor_role: 'admin', at: '2026-11-03T06:00:00Z' }));
+const entries = Array.from({ length: 3 }, (_, i) => ({
+  seq: 30 - i,
+  id: `e${30 - i}`,
+  action: i === 0 ? 'temperature.excursion' : 'request.created',
+  actor_role: 'admin',
+  entity_type: 'transfer',
+  entity_id: 'abc',
+  at: '2026-11-03T06:00:00Z',
+  payload: {},
+  prev_hash: '0'.repeat(64),
+  hash: 'a'.repeat(64),
+}));
 
 describe('AuditPage', () => {
-  it('verifies the chain, filters and pages', async () => {
-    vi.spyOn(api, 'get').mockResolvedValue({ valid: false, length: 30, head_hash: 'abc', broken_at_seq: 12 });
-    const getList = vi.spyOn(api, 'getList').mockResolvedValue({ data: entries, meta: {} });
+  beforeEach(() => {
+    vi.spyOn(admin, 'verifyAudit').mockResolvedValue({ valid: true, length: 30, head_hash: 'abc', broken_at_seq: null });
+    vi.spyOn(admin, 'getAuditSummary').mockResolvedValue({
+      window: '7d', total: 30, important: 1, by_category: { forecast: 20, temperature: 1 }, top_actions: [{ action: 'request.created', count: 20 }],
+    });
+    vi.spyOn(admin, 'listAudit').mockResolvedValue({ data: entries, meta: { next_before_seq: 27, important: true, limit: 50, count: 3 } });
+    vi.spyOn(facilities, 'listFacilities').mockResolvedValue([]);
+  });
+
+  it('shows summary, important default and friendly labels', async () => {
     render(<AuditPage />);
-    expect(await screen.findByText('Chain broken at #12')).toBeInTheDocument();
-    expect(await screen.findByText('act.30')).toBeInTheDocument();
-    expect(screen.queryByText('act.5')).not.toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Older' }));
-    expect(screen.getByText('act.5')).toBeInTheDocument();
-    await userEvent.type(screen.getByLabelText('Action'), 'offer.accepted');
-    await userEvent.click(screen.getByRole('button', { name: 'Filter' }));
-    await waitFor(() => expect(getList).toHaveBeenLastCalledWith('/audit', { query: expect.objectContaining({ action: 'offer.accepted', limit: 200 }) }));
+    expect(await screen.findByText(/Hash chain intact/)).toBeInTheDocument();
+    expect(await screen.findByText(/Cold-chain excursion/)).toBeInTheDocument();
+    expect(screen.getByText(/Last 7d: 30 events/)).toBeInTheDocument();
+    expect(screen.getByLabelText('Important only')).toBeChecked();
+    await waitFor(() => expect(admin.listAudit).toHaveBeenCalledWith(expect.objectContaining({ important: true, limit: 50 })));
+  });
+
+  it('loads older pages with before_seq', async () => {
+    render(<AuditPage />);
+    await screen.findByText(/Cold-chain excursion/);
+    await userEvent.click(screen.getByRole('button', { name: 'Load older' }));
+    await waitFor(() => expect(admin.listAudit).toHaveBeenLastCalledWith(expect.objectContaining({ beforeSeq: 27 })));
+  });
+
+  it('can show all events', async () => {
+    render(<AuditPage />);
+    await screen.findByText(/Cold-chain excursion/);
+    await userEvent.click(screen.getByLabelText('Important only'));
+    await waitFor(() => expect(admin.listAudit).toHaveBeenLastCalledWith(expect.objectContaining({ important: false })));
   });
 });

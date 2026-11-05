@@ -18,7 +18,7 @@ describe('OverviewPage', () => {
     render(<OverviewPage />);
     expect(await screen.findByText('412')).toBeInTheDocument();
     expect(screen.getByText('Intact')).toBeInTheDocument();
-    expect(await screen.findByText('transfer.packed')).toBeInTheDocument();
+    expect(await screen.findByText('Transfer packed')).toBeInTheDocument();
   });
 
   it('runs the timeout sweep', async () => {
